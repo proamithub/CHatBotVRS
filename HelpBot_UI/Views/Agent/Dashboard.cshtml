@@ -1,0 +1,1714 @@
+@{
+    ViewData["Title"] = "Support Agent Workspace";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Workspace -  HelpDesk</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.45);
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 15% 15%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+            color: var(--text-primary);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Orbs */
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.55;
+            animation: floatOrb 20s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 450px; height: 450px; background: linear-gradient(135deg, #6366f1, #3b82f6); top: -100px; left: -100px; }
+        .orb-2 { width: 400px; height: 400px; background: linear-gradient(135deg, #ec4899, #8b5cf6); bottom: -100px; right: -80px; }
+        @@keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, 30px) scale(1.08); }
+            100% { transform: translate(-30px, 50px) scale(0.95); }
+        }
+
+        /* Full-screen Glass Dashboard Container */
+        .agent-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1380px;
+            height: 94vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--glass-border);
+            border-radius: 26px;
+            box-shadow: var(--glass-shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .agent-header {
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .agent-avatar-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .agent-info h2 {
+            font-size: 1.08rem;
+            font-weight: 700;
+        }
+        .agent-info span {
+            font-size: 0.78rem;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        .header-tools {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
+        }
+        .glass-btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        /* Workspace Grid (Left Panel + Right Panel) */
+        .workspace-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            overflow: hidden;
+        }
+
+        /* Left Panel: Queues & Active Chats */
+        .queue-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .queue-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .queue-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        .queue-badge-count {
+            background: #6366f1;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.74rem;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 12px;
+        }
+        .filter-tab {
+            flex: 1;
+            text-align: center;
+            padding: 6px 4px;
+            border-radius: 8px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-tab.active {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+        }
+
+        .queue-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .queue-list::-webkit-scrollbar { width: 5px; }
+        .queue-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+
+        /* Session Card */
+        .session-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .session-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateX(3px);
+        }
+        .session-card.selected {
+            background: rgba(99, 102, 241, 0.22);
+            border-color: #818cf8;
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.25);
+        }
+        .session-card.waiting {
+            border-left: 4px solid var(--accent-amber);
+            animation: pulseCard 2.5s infinite;
+        }
+        @@keyframes pulseCard {
+            0%, 100% { border-color: rgba(245, 158, 11, 0.4); }
+            50% { border-color: rgba(245, 158, 11, 0.9); }
+        }
+
+        .sc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .sc-name {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: #f1f5f9;
+        }
+        .sc-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .sc-preview {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 8px;
+        }
+        .sc-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-pill {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+        .pill-bot { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+        .pill-waiting { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
+        .pill-live { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid #10b981; }
+
+        .btn-accept-mini {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            border: none;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-accept-mini:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Right Panel: Active Chat Stream */
+        .chat-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.12);
+        }
+        .active-session-bar {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .client-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .client-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* Chat Stream */
+        .agent-chat-stream {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .agent-chat-stream::-webkit-scrollbar { width: 6px; }
+        .agent-chat-stream::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+
+        /* Message Bubbles in Agent View */
+        .agent-msg-row {
+            display: flex;
+            gap: 10px;
+            max-width: 78%;
+            animation: fadeIn 0.25s ease forwards;
+        }
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .row-student {
+            align-self: flex-start;
+        }
+        .row-agent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .row-system {
+            align-self: center;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .bubble-msg {
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+        .bubble-student {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+            border: 1px solid rgba(147, 197, 253, 0.35);
+            border-top-left-radius: 4px;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+        }
+        .bubble-agent {
+            background: var(--agent-gradient, linear-gradient(135deg, #047857 0%, #059669 50%, #0d9488 100%));
+            border: 1px solid var(--agent-border, rgba(110, 231, 183, 0.35));
+            border-top-right-radius: 4px;
+            color: #ffffff;
+            box-shadow: 0 4px 16px var(--agent-shadow, rgba(5, 150, 105, 0.35));
+        }
+
+        /* Dynamic Theme Classes */
+        body.theme-emerald {
+            --agent-gradient: linear-gradient(135deg, #047857 0%, #059669 50%, #0d9488 100%);
+            --agent-border: rgba(110, 231, 183, 0.35);
+            --agent-shadow: rgba(5, 150, 105, 0.35);
+            --agent-tag: #6ee7b7;
+        }
+        body.theme-cyan {
+            --agent-gradient: linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #0ea5e9 100%);
+            --agent-border: rgba(103, 232, 249, 0.35);
+            --agent-shadow: rgba(6, 182, 212, 0.35);
+            --agent-tag: #67e8f9;
+        }
+        body.theme-purple {
+            --agent-gradient: linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #a855f7 100%);
+            --agent-border: rgba(192, 132, 252, 0.35);
+            --agent-shadow: rgba(124, 58, 237, 0.35);
+            --agent-tag: #c084fc;
+        }
+        body.theme-amber {
+            --agent-gradient: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+            --agent-border: rgba(253, 224, 71, 0.35);
+            --agent-shadow: rgba(217, 119, 6, 0.35);
+            --agent-tag: #fde047;
+        }
+        body.theme-rose {
+            --agent-gradient: linear-gradient(135deg, #be123c 0%, #e11d48 50%, #f43f5e 100%);
+            --agent-border: rgba(253, 164, 175, 0.35);
+            --agent-shadow: rgba(225, 29, 72, 0.35);
+            --agent-tag: #fda4af;
+        }
+        body.theme-indigo {
+            --agent-gradient: linear-gradient(135deg, #3730a3 0%, #4338ca 50%, #6366f1 100%);
+            --agent-border: rgba(165, 180, 252, 0.35);
+            --agent-shadow: rgba(67, 56, 202, 0.35);
+            --agent-tag: #a5b4fc;
+        }
+
+        /* Swatches UI */
+        .theme-picker-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
+            padding: 5px 12px;
+        }
+        .theme-swatch {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .theme-swatch:hover {
+            transform: scale(1.3);
+        }
+        .theme-swatch.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 10px #ffffff;
+            transform: scale(1.25);
+        }
+
+        /* Pending Alert Toast */
+        .pending-toast-alert {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(30, 20, 5, 0.94);
+            border: 1px solid #f59e0b;
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
+            border-radius: 18px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            animation: slideDownToast 0.4s ease forwards;
+            backdrop-filter: blur(16px);
+        }
+        @@keyframes slideDownToast {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .swatch-emerald { background: linear-gradient(135deg, #047857, #0d9488); }
+        .swatch-cyan { background: linear-gradient(135deg, #0284c7, #06b6d4); }
+        .swatch-purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+        .swatch-amber { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .swatch-rose { background: linear-gradient(135deg, #e11d48, #f43f5e); }
+        .swatch-indigo { background: linear-gradient(135deg, #4338ca, #6366f1); }
+        .bubble-system {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px dashed rgba(139, 92, 246, 0.4);
+            color: #c4b5fd;
+            font-size: 0.82rem;
+            border-radius: 12px;
+            padding: 8px 16px;
+        }
+
+        .msg-sender-tag {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        /* Accept Chat Banner */
+        .accept-banner {
+            margin: 16px 24px;
+            padding: 16px 20px;
+            border-radius: 18px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .btn-accept-large {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border: none;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+        }
+        .btn-accept-large:hover {
+            transform: scale(1.04);
+        }
+
+        /* Agent Footer & Quick Reply Templates */
+        .agent-footer {
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .quick-replies {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .quick-reply-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.76rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .quick-reply-pill:hover {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: #818cf8;
+            color: #fff;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .agent-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 14px 18px;
+            color: #fff;
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .agent-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #06b6d4;
+            box-shadow: 0 0 16px rgba(6, 182, 212, 0.3);
+        }
+        .agent-send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+        }
+        .agent-send-btn:hover {
+            transform: scale(1.06);
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            gap: 12px;
+            text-align: center;
+            padding: 30px;
+        }
+        .empty-icon {
+            font-size: 54px;
+            color: rgba(255, 255, 255, 0.18);
+        }
+
+        .btn-back-queue-mobile {
+            display: none;
+        }
+
+        @@media (max-width: 992px) {
+            body { padding: 8px; }
+            .agent-container { height: 98vh; border-radius: 18px; }
+            .agent-header { flex-direction: column; gap: 12px; align-items: stretch; padding: 12px 16px; }
+            .brand-meta { justify-content: space-between; width: 100%; }
+            .header-tools { flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
+            .header-tools .glass-btn { font-size: 0.78rem; padding: 6px 10px; }
+            .theme-picker-pill { display: none; }
+            
+            .workspace-grid { 
+                grid-template-columns: 1fr;
+                height: 100%;
+                overflow: hidden;
+            }
+            
+            /* Toggle view on mobile: Queue vs Chat */
+            body:not(.chat-active-mobile) .queue-panel {
+                display: flex !important;
+                width: 100%;
+                height: 100%;
+            }
+            body:not(.chat-active-mobile) .chat-panel {
+                display: none !important;
+            }
+
+            body.chat-active-mobile .queue-panel {
+                display: none !important;
+            }
+            body.chat-active-mobile .chat-panel {
+                display: flex !important;
+                width: 100%;
+                height: 100%;
+            }
+
+            .btn-back-queue-mobile {
+                display: inline-flex !important;
+                padding: 6px 10px;
+                font-size: 0.8rem;
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .active-session-bar {
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px 14px;
+            }
+
+            .quick-replies {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 4px;
+            }
+
+            .chat-input-bar {
+                gap: 8px;
+            }
+
+            .agent-input {
+                font-size: 0.88rem;
+                padding: 10px 14px;
+            }
+
+            .modal-overlay { padding: 10px; }
+            .glass-modal { max-width: 100%; border-radius: 16px; }
+        }
+
+        /* =====================================================================
+           MOBILE RESPONSIVE - 480px: Small phones
+           ===================================================================== */
+        @@media (max-width: 480px) {
+            body { padding: 4px; overflow: hidden; }
+
+            /* Container: fill screen fully */
+            .agent-container { border-radius: 12px; height: 99dvh; height: 99vh; }
+
+            /* Header: very compact */
+            .agent-header { padding: 8px 10px; gap: 8px; }
+            .agent-avatar-badge { width: 36px; height: 36px; font-size: 16px; border-radius: 11px; }
+            .agent-info h2 { font-size: 0.88rem; }
+            .agent-info span { font-size: 0.72rem; }
+
+            /* Header buttons: hide text labels, icon only */
+            .header-tools .glass-btn span { display: none; }
+            .header-tools .glass-btn { padding: 7px 9px; min-width: 34px; justify-content: center; }
+            .glass-btn-danger span { display: none; }
+            .glass-btn-danger { padding: 7px 9px; }
+            .header-tools { gap: 6px; flex-wrap: nowrap; }
+
+            /* Active session bar: stack actions into wrappable row */
+            .active-session-bar {
+                flex-direction: column;
+                gap: 8px;
+                padding: 8px 10px;
+            }
+            /* Action buttons in session bar fill full width */
+            .active-session-bar .glass-btn {
+                flex: 1;
+                justify-content: center;
+                font-size: 0.76rem;
+                padding: 7px 8px;
+            }
+
+            /* Chat panel footer */
+            .agent-footer { padding: 8px 10px; gap: 6px; }
+            .agent-input { padding: 10px 12px; font-size: 0.86rem; }
+
+            /* Send button touch-friendly */
+            .agent-send-btn { width: 40px; height: 40px; font-size: 16px; border-radius: 12px; }
+
+            /* Quick reply pills */
+            .quick-reply-pill { font-size: 0.76rem; padding: 5px 10px; }
+
+            /* Modals: almost full-screen on small phones */
+            .modal-overlay { padding: 8px; }
+            .glass-modal {
+                max-height: 95dvh;
+                max-height: 95vh;
+                overflow-y: auto;
+                border-radius: 14px;
+            }
+            .modal-body { padding: 14px; }
+            .modal-header { padding: 12px 14px; }
+            .modal-footer {
+                flex-direction: column-reverse;
+                gap: 8px;
+                padding: 12px 14px;
+            }
+            .modal-footer .glass-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Queue panel items */
+            .queue-item { padding: 12px 14px; }
+            .queue-item-name { font-size: 0.85rem; }
+            .queue-item-preview { font-size: 0.75rem; }
+
+            /* Scroll to top button positioning */
+            .btn-scroll-top { bottom: 70px; right: 12px; }
+        }
+
+        /* =====================================================================
+           MOBILE RESPONSIVE - 360px: Very tiny phones
+           ===================================================================== */
+        @@media (max-width: 360px) {
+            .agent-info h2 { font-size: 0.82rem; }
+            .active-session-bar .glass-btn { font-size: 0.72rem; padding: 6px 7px; }
+            .agent-input { font-size: 0.82rem; }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(2, 6, 23, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .glass-modal {
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover { color: #f8fafc; }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.25);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+        .glass-input:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+        }
+        .glass-input option {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .btn-confirm-transfer {
+            background: linear-gradient(135deg, #0284c7, #06b6d4);
+            border: 1px solid rgba(103, 232, 249, 0.4);
+            color: #fff;
+            font-weight: 600;
+        }
+        .btn-confirm-transfer:hover {
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    <div class="agent-container">
+
+        <!-- Top Header -->
+        <div class="agent-header">
+            <div class="brand-meta">
+                <div class="agent-avatar-badge">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <div class="agent-info">
+                    <h2>@ViewBag.AgentName <span style="font-size:0.75rem; color:#cbd5e1; font-weight:normal;">(@ViewBag.AgentEmail)</span></h2>
+                    <span><span class="live-dot"></span> Live Support Active</span>
+                </div>
+            </div>
+
+            <div class="header-tools">
+                <!-- Theme Picker -->
+                <div class="theme-picker-pill" title="Choose your chat bubble color theme">
+                    <span style="font-size: 0.76rem; color: #cbd5e1; display:flex; align-items:center; gap:4px;">
+                        <i class="bi bi-palette2"></i> Theme:
+                    </span>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <span class="theme-swatch swatch-emerald" data-theme="emerald" title="Emerald Green" onclick="changeTheme('emerald')"></span>
+                        <span class="theme-swatch swatch-cyan" data-theme="cyan" title="Electric Cyan" onclick="changeTheme('cyan')"></span>
+                        <span class="theme-swatch swatch-purple" data-theme="purple" title="Royal Purple" onclick="changeTheme('purple')"></span>
+                        <span class="theme-swatch swatch-amber" data-theme="amber" title="Sunset Amber" onclick="changeTheme('amber')"></span>
+                        <span class="theme-swatch swatch-rose" data-theme="rose" title="Rose Ruby" onclick="changeTheme('rose')"></span>
+                        <span class="theme-swatch swatch-indigo" data-theme="indigo" title="Midnight Indigo" onclick="changeTheme('indigo')"></span>
+                    </div>
+                </div>
+
+                <!-- Online / Away Status Toggle -->
+                <button class="glass-btn" id="btnOnlineToggle" onclick="toggleOnlineStatus()" title="Click to toggle Online / Away status">
+                    <span class="live-dot" id="liveDotIndicator" style="background:#10b981;"></span>
+                    <span id="txtOnlineStatus">Online</span>
+                </button>
+
+                @if (ViewBag.IsAdmin == true)
+                {
+                    <a href="/Admin/Dashboard" class="glass-btn" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.35), rgba(99, 102, 241, 0.45)); border-color: rgba(167, 139, 250, 0.5); font-weight: 600; color: #fff;">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Admin Dashboard</span>
+                    </a>
+                }
+
+                <a href="/" target="_blank" class="glass-btn">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    <span>Open Student Chat</span>
+                </a>
+                <button class="glass-btn" onclick="fetchLiveQueue()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Refresh</span>
+                </button>
+                <a href="/Account/Logout" class="glass-btn glass-btn-danger">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="workspace-grid" style="position: relative;">
+
+            <!-- Pending Request Alert Toast -->
+            <div class="pending-toast-alert" id="pendingToastAlert" style="display: none;">
+                <i class="bi bi-bell-fill" style="color: #f59e0b; font-size: 1.25rem;"></i>
+                <div>
+                    <div style="font-weight: 700; color: #fef3c7; font-size: 0.92rem;" id="toastTitle">Pending Student Request!</div>
+                    <div style="font-size: 0.78rem; color: #cbd5e1;" id="toastDesc">Student waiting for live agent. Click Accept to start chatting.</div>
+                </div>
+                <button class="btn-accept-mini" style="padding: 7px 16px; font-size: 0.84rem;" onclick="acceptSelectedChat()">
+                    <i class="bi bi-lightning-charge-fill"></i> Accept Now
+                </button>
+                <button style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:16px;" onclick="closeToast()"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <!-- Left Panel: Chat Sessions Queue -->
+            <div class="queue-panel">
+                <div class="queue-header">
+                    <div class="queue-title">
+                        <span>Active Chats Queue</span>
+                        <span class="queue-badge-count" id="queueCount">0</span>
+                    </div>
+
+                    <div class="filter-tabs">
+                        <div class="filter-tab active" onclick="setFilter('all', this)">All</div>
+                        <div class="filter-tab" onclick="setFilter('waiting', this)"><i class="bi bi-bell-fill"></i> Waiting</div>
+                        <div class="filter-tab" onclick="setFilter('live', this)"><i class="bi bi-chat-dots-fill"></i> Live</div>
+                    </div>
+                </div>
+
+                <div class="queue-list" id="queueList">
+                    <!-- Session cards dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Active Conversation View -->
+            <div class="chat-panel" id="chatPanel">
+                
+                <!-- Shown when no session is selected -->
+                <div class="empty-state" id="emptyPlaceholder">
+                    <i class="bi bi-chat-square-dots empty-icon"></i>
+                    <h3 style="font-weight: 600; font-size: 1.15rem; color: #f1f5f9;">No Chat Selected</h3>
+                    <p style="font-size: 0.86rem; max-width: 360px;">Select a chat session from the left queue or click <strong>"Accept Chat"</strong> to connect with a student.</p>
+                </div>
+
+                <!-- Active Chat Stream (Hidden initially) -->
+                <div id="activeChatSection" style="display: none; flex: 1; flex-direction: column; height: 100%; overflow: hidden;">
+                    
+                    <div class="active-session-bar">
+                        <div class="client-profile">
+                            <button class="glass-btn btn-back-queue-mobile" id="btnBackToQueueMobile" onclick="mobileBackToQueue()" title="Back to Queue">
+                                <i class="bi bi-chevron-left"></i>
+                                <span>Queue</span>
+                            </button>
+                            <div class="client-avatar">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div>
+                                <h3 id="currentClientName" style="font-size: 1rem; font-weight: 700;">Student</h3>
+                                <div id="currentClientStatus" style="font-size: 0.76rem; color: var(--accent-cyan);">Status: Bot</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button class="glass-btn" style="background: rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); color: #c084fc;" onclick="openRequestUploadModal()" title="Ask student to upload a document, screenshot or photo">
+                                <i class="bi bi-paperclip"></i>
+                                <span>Request File</span>
+                            </button>
+                            <button class="glass-btn" style="background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.4); color: #67e8f9;" onclick="openTransferModal()">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Transfer Chat</span>
+                            </button>
+                            <button class="glass-btn glass-btn-danger" onclick="closeCurrentChat()">
+                                <i class="bi bi-check2-circle"></i>
+                                <span>End & Close Chat</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Accept Banner if Session is Waiting -->
+                    <div class="accept-banner" id="acceptBanner" style="display: none;">
+                        <div>
+                            <div style="font-weight: 700; color: #f59e0b; font-size: 0.95rem;"><i class="bi bi-exclamation-triangle-fill"></i> Student is waiting for a live agent!</div>
+                            <div style="font-size: 0.8rem; color: #cbd5e1;">You can accept this session to begin replying to the student in real-time.</div>
+                        </div>
+                        <button class="btn-accept-large" onclick="acceptSelectedChat()">
+                            <i class="bi bi-lightning-charge-fill"></i> Accept Chat
+                        </button>
+                    </div>
+
+                    <!-- Messages Stream -->
+                    <div class="agent-chat-stream" id="agentChatStream">
+                        <!-- Messages dynamically appended -->
+                    </div>
+
+                    <!-- Agent Input Footer -->
+                    <div class="agent-footer">
+                        <div class="quick-replies">
+                            <span class="quick-reply-pill" onclick="sendQuickReply('Hello! How can I assist you today?')"><i class="bi bi-hand-thumbs-up-fill"></i> Greeting</span>
+                            <span class="quick-reply-pill" onclick="sendQuickReply('Please share your Roll Number or Enrollment Number.')"><i class="bi bi-card-text"></i> Ask Roll No</span>
+                            <span class="quick-reply-pill" onclick="sendQuickReply('I have checked your request; it will be resolved shortly.')"><i class="bi bi-check-circle-fill"></i> In Progress</span>
+                            <span class="quick-reply-pill" onclick="sendQuickReply('Is there anything else I can help you with today?')"><i class="bi bi-question-circle-fill"></i> Any more help?</span>
+                        </div>
+
+                        <div class="chat-input-bar">
+                            <input type="text" id="agentMsgInput" class="agent-input" placeholder="Type your reply to student..." autocomplete="off" />
+                            <button class="agent-send-btn" onclick="sendAgentMessage()">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let allSessions = [];
+        let currentFilter = 'all';
+        let selectedSessionId = null;
+        let selectedSession = null;
+        let lastMessageId = 0;
+        let pollTimer = null;
+        let currentAgentTheme = localStorage.getItem('agent_theme') || '@ViewBag.AgentTheme' || 'emerald';
+
+        const themeStyles = {
+            emerald: { bg: 'linear-gradient(135deg, #047857 0%, #059669 50%, #0d9488 100%)', border: 'rgba(110, 231, 183, 0.35)', tag: '#6ee7b7' },
+            cyan: { bg: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #0ea5e9 100%)', border: 'rgba(103, 232, 249, 0.35)', tag: '#67e8f9' },
+            purple: { bg: 'linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #a855f7 100%)', border: 'rgba(192, 132, 252, 0.35)', tag: '#c084fc' },
+            amber: { bg: 'linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%)', border: 'rgba(253, 224, 71, 0.35)', tag: '#fde047' },
+            rose: { bg: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #f43f5e 100%)', border: 'rgba(253, 164, 175, 0.35)', tag: '#fda4af' },
+            indigo: { bg: 'linear-gradient(135deg, #3730a3 0%, #4338ca 50%, #6366f1 100%)', border: 'rgba(165, 180, 252, 0.35)', tag: '#a5b4fc' }
+        };
+
+        function applyTheme(theme) {
+            currentAgentTheme = theme;
+            localStorage.setItem('agent_theme', theme);
+            document.body.className = `theme-${theme}`;
+            document.querySelectorAll('.theme-swatch').forEach(el => {
+                el.classList.toggle('active', el.dataset.theme === theme);
+            });
+        }
+
+        async function changeTheme(theme) {
+            applyTheme(theme);
+            try {
+                await fetch('/api/agent/update-theme', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ThemeColor: theme })
+                });
+            } catch (err) {
+                console.error('Update theme error:', err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            applyTheme(currentAgentTheme);
+            fetchLiveQueue();
+            // Poll queue every 3.5 seconds
+            setInterval(fetchLiveQueue, 3500);
+            // Poll messages every 2.5 seconds when active
+            setInterval(pollActiveChatMessages, 2500);
+
+            document.getElementById('agentMsgInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendAgentMessage();
+            });
+
+            // Mark agent offline when dashboard tab/browser is closed
+            window.addEventListener('beforeunload', () => {
+                try {
+                    const blob = new Blob([JSON.stringify({ isOnline: false })], { type: 'application/json' });
+                    navigator.sendBeacon('/api/agent/toggle-status', blob);
+                } catch (e) {}
+            });
+        });
+
+        let previousWaitingCount = 0;
+        let isAgentOnline = true; // Will be confirmed on first queue fetch
+
+        // ──────────────────────────────────────────────
+        // Initialize: Set agent Online on dashboard load
+        // (already done server-side in Dashboard() action,
+        //  here we sync the UI toggle state)
+        // ──────────────────────────────────────────────
+        function syncOnlineUI(online) {
+            isAgentOnline = online;
+            const dot = document.getElementById('liveDotIndicator');
+            const txt = document.getElementById('txtOnlineStatus');
+            if (dot) dot.style.background = online ? '#10b981' : '#94a3b8';
+            if (txt) txt.innerText = online ? 'Online' : 'Away';
+        }
+
+        function playNotificationChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.45);
+            } catch (e) {}
+        }
+
+        async function toggleOnlineStatus() {
+            isAgentOnline = !isAgentOnline;
+            syncOnlineUI(isAgentOnline);
+
+            try {
+                await fetch('/api/agent/toggle-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isOnline: isAgentOnline })
+                });
+            } catch (err) {
+                console.error('Toggle status error:', err);
+            }
+        }
+
+        function showPendingToast(count, waitingSession) {
+            const toast = document.getElementById('pendingToastAlert');
+            const studentName = waitingSession ? (waitingSession.UserName || 'Student') : 'Student';
+            document.getElementById('toastTitle').innerText = `🔔 ${count} Student(s) Waiting in Queue!`;
+            document.getElementById('toastDesc').innerText = `${studentName} wants live assistance. Click "Accept Now" to start chatting.`;
+            toast.style.display = 'flex';
+        }
+
+        function closeToast() {
+            document.getElementById('pendingToastAlert').style.display = 'none';
+        }
+
+        async function fetchLiveQueue() {
+            try {
+                const res = await fetch('/api/agent/queue');
+                const data = await res.json();
+                if (data.success) {
+                    allSessions = data.data || [];
+                    document.getElementById('queueCount').innerText = allSessions.length;
+                    renderQueue();
+
+                    const waitingSessions = allSessions.filter(s => s.Status === 'WaitingAgent');
+
+                    // Only show toast & chime if agent is Online (not Away)
+                    if (isAgentOnline && waitingSessions.length > 0) {
+                        showPendingToast(waitingSessions.length, waitingSessions[0]);
+                        
+                        // Play chime when new request arrives
+                        if (waitingSessions.length > previousWaitingCount) {
+                            playNotificationChime();
+                        }
+
+                        // If no Live chat currently selected, auto-select the first waiting one
+                        if (!selectedSessionId || (selectedSession && selectedSession.Status !== 'Live')) {
+                            selectSession(waitingSessions[0]);
+                        }
+                    } else {
+                        closeToast();
+                    }
+                    previousWaitingCount = waitingSessions.length;
+                }
+            } catch (err) {
+                console.error('Error fetching queue:', err);
+            }
+        }
+
+        function setFilter(filter, el) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            renderQueue();
+        }
+
+        function renderQueue() {
+            const list = document.getElementById('queueList');
+            list.innerHTML = '';
+
+            let filtered = allSessions;
+            if (currentFilter === 'waiting') filtered = allSessions.filter(s => s.Status === 'WaitingAgent');
+            else if (currentFilter === 'live') filtered = allSessions.filter(s => s.Status === 'Live');
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-secondary); font-size: 0.84rem;">No sessions found</div>`;
+                return;
+            }
+
+            filtered.forEach(s => {
+                const isSelected = selectedSessionId === s.SessionId;
+                const isWaiting = s.Status === 'WaitingAgent';
+                const card = document.createElement('div');
+                card.className = `session-card ${isSelected ? 'selected' : ''} ${isWaiting ? 'waiting' : ''}`;
+                card.onclick = () => selectSession(s);
+
+                const time = new Date(s.LastActivityAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const pillClass = s.Status === 'Live' ? 'pill-live' : (s.Status === 'WaitingAgent' ? 'pill-waiting' : 'pill-bot');
+                const rollOrContact = s.RollNo || s.UserContact || '';
+                const fatherInfo = s.FatherName ? ` • S/O: ${escapeHtml(s.FatherName)}` : '';
+
+                card.innerHTML = `
+                    <div class="sc-header">
+                        <span class="sc-name"><i class="bi bi-person-fill"></i> ${escapeHtml(s.UserName || 'Student')}</span>
+                        <span class="sc-time">${time}</span>
+                    </div>
+                    ${rollOrContact ? `<div style="font-size: 0.74rem; color: #93c5fd; margin-bottom: 4px;"><i class="bi bi-shield-check"></i> ${escapeHtml(rollOrContact)}${fatherInfo}</div>` : ''}
+                    <div class="sc-preview">${escapeHtml(s.LastMessage || 'Session started')}</div>
+                    <div class="sc-footer">
+                        <span class="status-pill ${pillClass}">${s.Status}</span>
+                        ${isWaiting ? `<button class="btn-accept-mini" onclick="event.stopPropagation(); acceptChatDirect('${s.SessionId}')"><i class="bi bi-lightning-charge-fill"></i> Accept</button>` : ''}
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function selectSession(s) {
+            selectedSessionId = s.SessionId;
+            selectedSession = s;
+            lastMessageId = 0;
+
+            document.body.classList.add('chat-active-mobile');
+            document.getElementById('emptyPlaceholder').style.display = 'none';
+            const chatSec = document.getElementById('activeChatSection');
+            chatSec.style.display = 'flex';
+
+            const rollOrContact = s.RollNo || s.UserContact || 'N/A';
+            const fatherText = s.FatherName ? ` | S/O: ${s.FatherName}` : '';
+            document.getElementById('currentClientName').innerText = s.UserName || 'Student / Visitor';
+            document.getElementById('currentClientStatus').innerText = `ID / Mobile: ${rollOrContact}${fatherText} • Status: ${s.Status}`;
+            
+            document.getElementById('acceptBanner').style.display = (s.Status === 'WaitingAgent') ? 'flex' : 'none';
+
+            document.getElementById('agentChatStream').innerHTML = '';
+            renderQueue();
+            pollActiveChatMessages();
+        }
+
+        function mobileBackToQueue() {
+            document.body.classList.remove('chat-active-mobile');
+        }
+
+        async function acceptSelectedChat() {
+            if (!selectedSessionId) return;
+            await acceptChatDirect(selectedSessionId);
+        }
+
+        async function acceptChatDirect(sId) {
+            try {
+                const res = await fetch('/api/agent/accept', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ SessionId: sId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // Refresh queue — now this session shows as Live only for this agent
+                    await fetchLiveQueue();
+                    // Find and select the newly accepted session
+                    const updated = allSessions.find(x => x.SessionId === sId);
+                    if (updated) {
+                        selectSession(updated);
+                    } else {
+                        // If filtered out (another agent got it first), just refresh view
+                        selectedSessionId = null;
+                        document.getElementById('emptyPlaceholder').style.display = 'flex';
+                        document.getElementById('activeChatSection').style.display = 'none';
+                        alert('This chat has already been accepted by another agent!');
+                    }
+                } else {
+                    alert(data.message || 'Error occurred while accepting the chat.');
+                }
+            } catch (err) {
+                console.error('Accept error:', err);
+            }
+        }
+
+        async function pollActiveChatMessages() {
+            if (!selectedSessionId) return;
+
+            try {
+                const res = await fetch(`/api/agent/messages?sessionId=${selectedSessionId}&lastId=${lastMessageId}`);
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    const stream = document.getElementById('agentChatStream');
+                    data.data.forEach(m => {
+                        appendMessageToStream(m);
+                        if (m.MessageId > lastMessageId) lastMessageId = m.MessageId;
+                    });
+                    stream.scrollTop = stream.scrollHeight;
+                }
+            } catch (err) {
+                console.error('Error polling messages:', err);
+            }
+        }
+
+        function cleanSystemText(text) {
+            if (!text) return '';
+            return text
+                .replace(/\[Agent Connected\]\s*/gi, '')
+                .replace(/\[Chat Closed\]\s*/gi, '')
+                .replace(/\[Transferred\]\s*/gi, '')
+                .replace(/\[Chat Transferred\]\s*/gi, '')
+                .replace(/\[Upload Requested\]\s*/gi, '')
+                .replace(/ðŸ”„\s*/gi, '')
+                .replace(/[\u00F0\u0178\u201D\u201E]/g, '')
+                .replace(/ð[^\s]*/g, '')
+                .trim();
+        }
+
+        function appendMessageToStream(m) {
+            const stream = document.getElementById('agentChatStream');
+            const row = document.createElement('div');
+
+            let attachmentHtml = '';
+            if (m.AttachmentUrl) {
+                if (m.AttachmentType === 'image') {
+                    attachmentHtml = `
+                        <div style="margin-top: 8px;">
+                            <a href="${m.AttachmentUrl}" target="_blank" title="Click to view full image">
+                                <img src="${m.AttachmentUrl}" alt="${escapeHtml(m.AttachmentName || 'Photo')}" style="max-width: 250px; max-height: 200px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); object-fit: cover; display: block; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" />
+                            </a>
+                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                                <i class="bi bi-image"></i> ${escapeHtml(m.AttachmentName || 'Photo')}
+                                <a href="${m.AttachmentUrl}" download style="color: #67e8f9; text-decoration: none; font-weight: 600;"><i class="bi bi-download"></i> Download</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    attachmentHtml = `
+                        <div style="margin-top: 8px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px;">
+                            <i class="bi bi-file-earmark-text-fill" style="font-size: 24px; color: #67e8f9;"></i>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; font-size: 0.82rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(m.AttachmentName || 'Document')}</div>
+                                <a href="${m.AttachmentUrl}" download target="_blank" style="font-size: 0.74rem; color: #6ee7b7; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                    <i class="bi bi-download"></i> Download File
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            if (m.SenderType === 'User') {
+                row.className = 'agent-msg-row row-student';
+                row.innerHTML = `
+                    <div>
+                        <div class="msg-sender-tag" style="color: #93c5fd; font-weight: 600;"><i class="bi bi-person-fill"></i> Student (${escapeHtml(m.SenderName)})</div>
+                        <div class="bubble-msg bubble-student">${escapeHtml(m.MessageText)}${attachmentHtml}</div>
+                    </div>
+                `;
+            } else if (m.SenderType === 'Agent') {
+                const t = themeStyles[m.ThemeColor || currentAgentTheme] || themeStyles['emerald'];
+                row.className = 'agent-msg-row row-agent';
+                row.innerHTML = `
+                    <div>
+                        <div class="msg-sender-tag" style="text-align:right; color: ${t.tag}; font-weight: 600;"><i class="bi bi-headset"></i> You (${escapeHtml(m.SenderName)})</div>
+                        <div class="bubble-msg bubble-agent" style="background: ${t.bg}; border-color: ${t.border};">${escapeHtml(m.MessageText)}${attachmentHtml}</div>
+                    </div>
+                `;
+            } else {
+                row.className = 'agent-msg-row row-system';
+                const clean = cleanSystemText(m.MessageText);
+                let badge = '';
+                if (m.MessageText && m.MessageText.includes('[Agent Connected]')) {
+                    badge = `<span style="background: rgba(16, 185, 129, 0.25); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 2px 8px; font-size: 0.74rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-person-check-fill"></i> Connected</span>`;
+                } else if (m.MessageText && m.MessageText.includes('[Chat Closed]')) {
+                    badge = `<span style="background: rgba(239, 68, 68, 0.25); border: 1px solid #ef4444; color: #fca5a5; border-radius: 6px; padding: 2px 8px; font-size: 0.74rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-lock-fill"></i> Closed</span>`;
+                } else if (m.MessageText && (m.MessageText.includes('[Transferred]') || m.MessageText.includes('[Chat Transferred]'))) {
+                    badge = `<span style="background: rgba(6, 182, 212, 0.25); border: 1px solid #06b6d4; color: #67e8f9; border-radius: 6px; padding: 2px 8px; font-size: 0.74rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-arrow-left-right"></i> Transferred</span>`;
+                } else if (m.MessageText && m.MessageText.includes('[Upload Requested]')) {
+                    badge = `<span style="background: rgba(139, 92, 246, 0.25); border: 1px solid #8b5cf6; color: #c084fc; border-radius: 6px; padding: 2px 8px; font-size: 0.74rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-paperclip"></i> Upload Requested</span>`;
+                }
+                row.innerHTML = `<div class="bubble-msg bubble-system">${badge}${escapeHtml(clean)}</div>`;
+            }
+
+            stream.appendChild(row);
+        }
+
+        async function sendAgentMessage() {
+            const input = document.getElementById('agentMsgInput');
+            const text = input.value.trim();
+            if (!text || !selectedSessionId) return;
+
+            input.value = '';
+
+            try {
+                const res = await fetch('/api/agent/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        SessionId: selectedSessionId,
+                        MessageText: text,
+                        ThemeColor: currentAgentTheme
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    appendMessageToStream(data.data);
+                    lastMessageId = data.data.MessageId;
+                    const stream = document.getElementById('agentChatStream');
+                    stream.scrollTop = stream.scrollHeight;
+                }
+            } catch (err) {
+                console.error('Error sending agent msg:', err);
+            }
+        }
+
+        function sendQuickReply(text) {
+            document.getElementById('agentMsgInput').value = text;
+            sendAgentMessage();
+        }
+
+        async function closeCurrentChat() {
+            if (!selectedSessionId) return;
+            if (!confirm('Are you sure you want to end and close this chat session?')) return;
+
+            try {
+                const res = await fetch('/api/agent/close', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ SessionId: selectedSessionId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    selectedSessionId = null;
+                    document.body.classList.remove('chat-active-mobile');
+                    document.getElementById('emptyPlaceholder').style.display = 'flex';
+                    document.getElementById('activeChatSection').style.display = 'none';
+                    await fetchLiveQueue();
+                }
+            } catch (err) {
+                console.error('Error closing chat:', err);
+            }
+        }
+
+        async function openTransferModal() {
+            if (!selectedSessionId) {
+                alert('Please select an active chat session to transfer.');
+                return;
+            }
+
+            document.getElementById('transferStudentName').innerText = selectedSession?.UserName || 'Student';
+            let meta = [];
+            if (selectedSession?.RollNo) meta.push('Roll: ' + selectedSession.RollNo);
+            if (selectedSession?.UserContact) meta.push('Contact: ' + selectedSession.UserContact);
+            document.getElementById('transferStudentMeta').innerText = meta.join(' | ') || 'Live Session';
+
+            const select = document.getElementById('transferAgentSelect');
+            select.innerHTML = '<option value="">Loading available agents...</option>';
+            document.getElementById('transferModalOverlay').style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/agent/available-agents');
+                const data = await res.json();
+                select.innerHTML = '<option value="">-- Choose Agent --</option>';
+                if (data.success && data.data && data.data.length > 0) {
+                    data.data.forEach(ag => {
+                        const opt = document.createElement('option');
+                        opt.value = ag.AgentId;
+                        const statusDot = ag.IsOnline ? '🟢 Online' : '⚪ Offline';
+                        opt.textContent = `${ag.Name} (${ag.Role}) - ${statusDot}`;
+                        select.appendChild(opt);
+                    });
+                } else {
+                    select.innerHTML = '<option value="">No other agents currently available</option>';
+                }
+            } catch (err) {
+                console.error('Error fetching agents for transfer:', err);
+                select.innerHTML = '<option value="">Failed to load agents</option>';
+            }
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transferModalOverlay').style.display = 'none';
+            document.getElementById('transferReasonInput').value = '';
+        }
+
+        async function submitTransferChat() {
+            const targetAgentId = document.getElementById('transferAgentSelect').value;
+            if (!targetAgentId) {
+                alert('Please select an agent to transfer this chat to.');
+                return;
+            }
+
+            const reason = document.getElementById('transferReasonInput').value.trim();
+            const btn = document.getElementById('btnConfirmTransfer');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Transferring...';
+
+            try {
+                const res = await fetch('/api/agent/transfer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        SessionId: selectedSessionId,
+                        ToAgentId: parseInt(targetAgentId),
+                        Reason: reason
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeTransferModal();
+                    alert(data.message || 'Chat transferred successfully.');
+                    selectedSessionId = null;
+                    selectedSession = null;
+                    document.body.classList.remove('chat-active-mobile');
+                    document.getElementById('emptyPlaceholder').style.display = 'flex';
+                    document.getElementById('activeChatSection').style.display = 'none';
+                    await fetchLiveQueue();
+                } else {
+                    alert(data.message || 'Transfer failed.');
+                }
+            } catch (err) {
+                console.error('Error submitting transfer:', err);
+                alert('Network error while transferring chat.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send-check-fill"></i> <span>Confirm Transfer</span>';
+            }
+        }
+
+        function openRequestUploadModal() {
+            if (!selectedSessionId) {
+                alert('Please select an active chat session first.');
+                return;
+            }
+            document.getElementById('requestUploadPromptInput').value = 'Please upload the required file or photo.';
+            document.getElementById('requestUploadModalOverlay').style.display = 'flex';
+        }
+
+        function closeRequestUploadModal() {
+            document.getElementById('requestUploadModalOverlay').style.display = 'none';
+        }
+
+        function setUploadPrompt(text) {
+            document.getElementById('requestUploadPromptInput').value = text;
+        }
+
+        async function submitRequestUpload() {
+            if (!selectedSessionId) return;
+            const promptText = document.getElementById('requestUploadPromptInput').value.trim();
+            const btn = document.getElementById('btnSubmitRequestUpload');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Activating...';
+
+            try {
+                const res = await fetch('/api/agent/request-upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        SessionId: selectedSessionId,
+                        Prompt: promptText
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeRequestUploadModal();
+                    alert(data.message || 'File upload requested. Student can now send a file.');
+                    await pollActiveChatMessages();
+                } else {
+                    alert(data.message || 'Could not request upload.');
+                }
+            } catch (err) {
+                console.error('Request upload error:', err);
+                alert('Network error while requesting file upload.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill"></i> Activate Upload for Student';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+    </script>
+
+    <!-- Request File / Image Upload Modal -->
+    <div class="modal-overlay" id="requestUploadModalOverlay" style="display: none;">
+        <div class="glass-modal">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 18px;">
+                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Request Student File / Image</h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">Activate student upload permission</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeRequestUploadModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 12px;">
+                    Select the document or image type you need from the student, or type custom instructions:
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
+                    <span class="quick-reply-pill" onclick="setUploadPrompt('Please upload your Fee Receipt or Payment Proof.')">
+                        <i class="bi bi-receipt"></i> Fee Receipt
+                    </span>
+                    <span class="quick-reply-pill" onclick="setUploadPrompt('Please upload your Admit Card or Roll No ID Proof.')">
+                        <i class="bi bi-card-heading"></i> Admit Card / ID
+                    </span>
+                    <span class="quick-reply-pill" onclick="setUploadPrompt('Please upload a screenshot of the error or problem.')">
+                        <i class="bi bi-aspect-ratio"></i> Screenshot
+                    </span>
+                    <span class="quick-reply-pill" onclick="setUploadPrompt('Please upload your Marksheet or Certificate.')">
+                        <i class="bi bi-file-earmark-check"></i> Marksheet
+                    </span>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Instructions for Student</label>
+                    <input type="text" id="requestUploadPromptInput" class="glass-input" placeholder="e.g. Please upload your payment transaction screenshot" style="width: 100%;" />
+                    <div style="font-size: 0.74rem; color: #a78bfa; margin-top: 6px; display: flex; align-items: center; gap: 4px;">
+                        <i class="bi bi-info-circle-fill"></i> Max file size allowed: 2MB (Large photos are automatically compressed on student device).
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeRequestUploadModal()">Cancel</button>
+                <button class="glass-btn" style="background: linear-gradient(135deg, #7c3aed, #6366f1); border: 1px solid rgba(167, 139, 250, 0.4); color: #fff; font-weight: 600;" id="btnSubmitRequestUpload" onclick="submitRequestUpload()">
+                    <i class="bi bi-cloud-arrow-up-fill"></i> Activate Upload for Student
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Chat Modal -->
+    <div class="modal-overlay" id="transferModalOverlay" style="display: none;">
+        <div class="glass-modal">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.4); display: flex; align-items: center; justify-content: center; color: #06b6d4; font-size: 18px;">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Transfer Chat Session</h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">Handoff student conversation to another agent</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeTransferModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Student Information</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #f8fafc; margin-top: 2px;" id="transferStudentName">Student</div>
+                    <div style="font-size: 0.8rem; color: #06b6d4; margin-top: 2px;" id="transferStudentMeta">Session Active</div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Select Target Agent <span style="color:#ef4444;">*</span></label>
+                    <select id="transferAgentSelect" class="glass-input" style="width: 100%; cursor: pointer;">
+                        <option value="">-- Choose Agent --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Reason / Transfer Note (Optional)</label>
+                    <input type="text" id="transferReasonInput" class="glass-input" placeholder="e.g. Specialized in fee inquiries, shift handover, etc." style="width: 100%;" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeTransferModal()">Cancel</button>
+                <button class="glass-btn btn-confirm-transfer" id="btnConfirmTransfer" onclick="submitTransferChat()">
+                    <i class="bi bi-send-check-fill"></i>
+                    <span>Confirm Transfer</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

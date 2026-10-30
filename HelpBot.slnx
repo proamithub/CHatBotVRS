@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="HelpBot_Data/HelpBot_Data.csproj" />
+  <Project Path="HelpBot_Model/HelpBot_Model.csproj" />
+  <Project Path="HelpBot_Repo/HelpBot_Repo.csproj" />
+  <Project Path="HelpBot_UI/HelpBot_UI.csproj" />
+</Solution>

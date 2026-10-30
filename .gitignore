@@ -1,0 +1,23 @@
+## Visual Studio / .NET Ignore
+.vs/
+.vscode/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.dll
+*.exe
+*.pdb
+*.log
+
+# ASP.NET Core
+appsettings.Development.json
+
+# Node / npm
+node_modules/
+
+# OS Files
+.DS_Store
+Thumbs.db

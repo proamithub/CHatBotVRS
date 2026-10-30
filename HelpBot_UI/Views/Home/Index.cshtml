@@ -1,0 +1,1706 @@
+@{
+    ViewData["Title"] = "HelpDesk Bot & Live Agent Portal";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HelpDesk Bot & Live Support</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.16);
+            --glass-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.45);
+            --bot-bubble-bg: rgba(15, 23, 42, 0.78);
+            --user-bubble-bg: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+            --agent-bubble-bg: linear-gradient(135deg, #047857 0%, #059669 50%, #0d9488 100%);
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 15% 15%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glowing Background Orbs */
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
+            animation: floatOrb 18s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 450px; height: 450px; background: linear-gradient(135deg, #6366f1, #3b82f6); top: -100px; left: -100px; }
+        .orb-2 { width: 400px; height: 400px; background: linear-gradient(135deg, #ec4899, #8b5cf6); bottom: -100px; right: -80px; }
+        .orb-3 { width: 320px; height: 320px; background: linear-gradient(135deg, #06b6d4, #10b981); top: 40%; right: 20%; opacity: 0.3; }
+
+        @@keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 40px) scale(1.1); }
+            100% { transform: translate(-40px, 60px) scale(0.95); }
+        }
+
+        /* Glassmorphism Main Chat Container */
+        .chat-glass-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 920px;
+            height: 90vh;
+            max-height: 860px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            box-shadow: var(--glass-shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .chat-header {
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .bot-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .brand-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .brand-text h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .brand-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulseDot 2s infinite;
+        }
+        @@keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .glass-btn-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            padding: 8px 13px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .glass-btn-pill:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
+            color: #fff;
+        }
+        .glass-btn-pill.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+        .glass-btn-pill.pill-live-agent {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+        .glass-btn-pill.pill-live-agent.active {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Chat Body */
+        .chat-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 10px; }
+
+        /* Message Bubbles */
+        .message-row {
+            display: flex;
+            gap: 12px;
+            max-width: 82%;
+            animation: fadeInUp 0.3s ease forwards;
+        }
+        @@keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .bot-row { align-self: flex-start; }
+        .user-row { align-self: flex-end; flex-direction: row-reverse; }
+        .agent-row { align-self: flex-start; }
+
+        .avatar-mini {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .bot-avatar { background: linear-gradient(135deg, #4f46e5, #7c3aed); border: 1px solid rgba(255, 255, 255, 0.25); }
+        .user-avatar { background: linear-gradient(135deg, #1d4ed8, #3b82f6); border: 1px solid rgba(147, 197, 253, 0.4); }
+        .agent-avatar { background: linear-gradient(135deg, #047857, #0d9488); border: 1px solid rgba(110, 231, 183, 0.4); }
+
+        .bubble-content {
+            padding: 13px 18px;
+            border-radius: 20px;
+            font-size: 0.93rem;
+            line-height: 1.55;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        .bot-bubble { background: var(--bot-bubble-bg); border: 1px solid rgba(139, 92, 246, 0.3); border-top-left-radius: 4px; color: #f1f5f9; }
+        .user-bubble { background: var(--user-bubble-bg); border: 1px solid rgba(147, 197, 253, 0.35); border-top-right-radius: 4px; color: #ffffff; box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4); }
+        .agent-bubble { background: var(--agent-bubble-bg); border: 1px solid rgba(110, 231, 183, 0.35); border-top-left-radius: 4px; color: #ffffff; box-shadow: 0 4px 18px rgba(5, 150, 105, 0.4); }
+
+        .msg-time { font-size: 0.7rem; color: var(--text-secondary); margin-top: 6px; text-align: right; }
+
+        /* Chips / Quick Reply Options */
+        .chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .chip-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #e2e8f0;
+            padding: 7px 14px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chip-btn:hover { background: rgba(99, 102, 241, 0.3); border-color: #818cf8; transform: translateY(-2px); color: #fff; }
+
+        /* Glass Ticket Receipt Card */
+        .ticket-glass-card {
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        .ticket-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+            margin-bottom: 12px;
+        }
+        .ticket-id-tag { font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #38bdf8; }
+        .status-badge { font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; }
+        .status-open { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid #3b82f6; }
+        .status-pending { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
+        .status-inprogress { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid #a855f7; }
+        .status-resolved { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid #10b981; }
+
+        .ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.84rem; }
+        .ticket-label { color: var(--text-secondary); font-size: 0.74rem; text-transform: uppercase; }
+        .ticket-val { font-weight: 500; color: #f1f5f9; }
+
+        /* Typing Dots Indicator */
+        .typing-bubble {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 12px 18px;
+            background: var(--bot-bubble-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            border-top-left-radius: 4px;
+            width: fit-content;
+        }
+        .typing-dot { width: 7px; height: 7px; background: #94a3b8; border-radius: 50%; animation: bounceTyping 1.4s infinite ease-in-out; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @@keyframes bounceTyping {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1.1); opacity: 1; background: #38bdf8; }
+        }
+
+        /* Chat Input Section */
+        .chat-footer {
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .input-glass-wrap { flex: 1; position: relative; }
+        .glass-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 18px;
+            padding: 14px 20px;
+            font-size: 0.95rem;
+            color: #fff;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #818cf8;
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+        }
+        .glass-input::placeholder { color: rgba(255, 255, 255, 0.38); }
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+            flex-shrink: 0;
+        }
+        .send-btn:hover { transform: scale(1.06); }
+
+        /* Controlled File Upload Styles */
+        .upload-request-banner {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(6, 182, 212, 0.22));
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(139, 92, 246, 0.45);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            animation: slideDown 0.3s ease;
+        }
+        @@keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .urb-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .urb-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(139, 92, 246, 0.35);
+            border: 1px solid rgba(139, 92, 246, 0.6);
+            color: #c084fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            animation: pulseGlow 2s infinite;
+        }
+        @@keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.5); }
+            50% { box-shadow: 0 0 14px 4px rgba(139, 92, 246, 0.4); }
+        }
+        .urb-title {
+            font-weight: 700;
+            color: #f8fafc;
+            font-size: 0.84rem;
+        }
+        .urb-desc {
+            font-size: 0.74rem;
+            color: #cbd5e1;
+        }
+        .urb-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .urb-btn-select {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .urb-btn-select:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+        .urb-btn-upload {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .urb-btn-upload:hover {
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-clip-lock {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-clip-lock.active-upload {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: #8b5cf6;
+            color: #c084fc;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+            animation: pulseGlow 1.8s infinite;
+            cursor: pointer;
+        }
+
+        .chat-img-thumb {
+            max-width: 240px;
+            max-height: 200px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .chat-img-thumb:hover {
+            transform: scale(1.02);
+        }
+
+        /* =====================================================================
+           MOBILE RESPONSIVE STYLES
+           Full overhaul for phone (320px+), tablet (768px), small phone (480px)
+           ===================================================================== */
+
+        /* --- 768px Breakpoint: Tablet & Phablet --- */
+        @@media (max-width: 768px) {
+            body {
+                padding: 0;
+                align-items: stretch;
+                overflow-x: hidden;
+                overflow-y: hidden;
+            }
+            /* Chat card fills full screen */
+            .chat-glass-card {
+                height: 100dvh;
+                height: 100vh; /* fallback for older browsers */
+                max-height: none;
+                border-radius: 0;
+                max-width: 100%;
+            }
+            /* Header: stack brand + actions vertically */
+            .chat-header {
+                padding: 10px 14px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            /* Action pills scroll horizontally, never wrap */
+            .header-actions {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 4px;
+                display: flex;
+                gap: 6px;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .header-actions::-webkit-scrollbar { display: none; }
+            .glass-btn-pill {
+                padding: 7px 11px;
+                font-size: 0.78rem;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            /* Chat body padding */
+            .chat-body {
+                padding: 14px 12px;
+                gap: 12px;
+            }
+            /* Message bubbles wider on mobile */
+            .message-row { max-width: 92%; }
+            .bubble-content {
+                padding: 10px 14px;
+                font-size: 0.88rem;
+            }
+            /* Ticket card */
+            .ticket-glass-card { padding: 14px; }
+            .ticket-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            /* Footer input area */
+            .chat-footer {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .glass-input {
+                padding: 12px 14px;
+                font-size: 0.9rem;
+            }
+            /* Touch-friendly buttons */
+            .send-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+                border-radius: 14px;
+                flex-shrink: 0;
+            }
+            .btn-clip-lock {
+                width: 44px;
+                height: 44px;
+                font-size: 17px;
+                flex-shrink: 0;
+            }
+            /* Upload request banner: stack vertically */
+            .upload-request-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px 14px;
+            }
+            .urb-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            /* Images in chat */
+            .chat-img-thumb { max-width: min(240px, 90%); }
+            /* Quick-reply chips */
+            .chip-btn {
+                padding: 7px 13px;
+                font-size: 0.82rem;
+            }
+            /* Status/mode badge */
+            .status-dot { width: 9px; height: 9px; }
+        }
+
+        /* --- 480px Breakpoint: Small phones (iPhone SE, Galaxy A series) --- */
+        @@media (max-width: 480px) {
+            /* Hide pill text, keep icons only to save space */
+            .glass-btn-pill span { display: none; }
+            .glass-btn-pill {
+                padding: 8px 10px;
+                min-width: 36px;
+                justify-content: center;
+            }
+            /* Smaller brand area */
+            .brand-text h2 { font-size: 0.9rem; }
+            .brand-text p { font-size: 0.72rem; }
+            .brand-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                border-radius: 11px;
+            }
+            /* Even wider message bubbles */
+            .message-row { max-width: 96%; }
+            .bubble-content { font-size: 0.85rem; }
+            /* Tighter chips */
+            .chip-btn {
+                padding: 6px 11px;
+                font-size: 0.78rem;
+            }
+            /* Smaller footer */
+            .chat-footer { padding: 8px 10px; gap: 6px; }
+            .glass-input { padding: 10px 12px; font-size: 0.86rem; }
+            .send-btn { width: 40px; height: 40px; font-size: 16px; }
+            .btn-clip-lock { width: 40px; height: 40px; font-size: 15px; }
+            /* Ticket grid single column on very small screens */
+            .ticket-grid { grid-template-columns: 1fr; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Orbs Background -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <!-- Main Glass Container -->
+    <div class="chat-glass-card">
+        
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="bot-brand">
+                <div class="brand-avatar" id="mainHeaderAvatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="brand-text">
+                    <h2 id="mainHeaderTitle">HelpDesk AI & Live Bot</h2>
+                    <div class="brand-status">
+                        <span class="status-dot"></span>
+                        <span id="mainHeaderStatus">Online (Bot)</span>
+                        <span id="chatDurationBadge" style="display:none; margin-left:8px; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; padding: 2px 9px; border-radius: 12px; font-family: monospace; font-size: 0.78rem; font-weight: 600; align-items: center; gap: 4px;">
+                            <i class="bi bi-stopwatch"></i> <span id="chatDurationText">00:00</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="glass-btn-pill active" id="btnModeNew" onclick="switchMode('new')">
+                    <i class="bi bi-chat-plus"></i>
+                    <span>New Ticket</span>
+                </button>
+                <button class="glass-btn-pill" id="btnModeTrack" onclick="switchMode('track')">
+                    <i class="bi bi-search"></i>
+                    <span>Track Status</span>
+                </button>
+                <button class="glass-btn-pill pill-live-agent" id="btnModeLive" onclick="switchMode('live')">
+                    <i class="bi bi-headset"></i>
+                    <span>Live Agent</span>
+                </button>
+                <button class="glass-btn-pill" title="Reset Chat" onclick="resetChat()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Conversation Area -->
+        <div class="chat-body" id="chatBody">
+            <!-- Messages will be injected dynamically here -->
+        </div>
+
+        <!-- Active Upload Banner (Visible ONLY when Agent activates upload) -->
+        <div class="upload-request-banner" id="uploadRequestBanner" style="display: none;">
+            <div class="urb-content">
+                <div class="urb-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                <div class="urb-text">
+                    <div class="urb-title" id="urbTitle">📎 Agent Requested Document / Photo</div>
+                    <div class="urb-desc" id="urbDesc">Please choose file (Max 2MB - photos are automatically compressed).</div>
+                </div>
+            </div>
+            <div class="urb-actions">
+                <label class="urb-btn-select" for="studentFileInput" id="lblChooseFile">
+                    <i class="bi bi-paperclip"></i> <span id="txtChooseFile">Choose File</span>
+                </label>
+                <input type="file" id="studentFileInput" style="display: none;" onchange="onStudentFileChosen(event)" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" />
+                <button class="urb-btn-upload" id="btnConfirmUpload" onclick="submitStudentUpload()" style="display: none;">
+                    <i class="bi bi-upload"></i> Send File
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-footer">
+            <button type="button" class="btn-clip-lock" id="btnStudentAttach" onclick="onStudentClipClick()" title="File upload is locked (Enabled only when requested by Agent)">
+                <i class="bi bi-paperclip"></i>
+            </button>
+            <div class="input-glass-wrap">
+                <input type="text" id="userInput" class="glass-input" placeholder="Type your answer here..." autocomplete="off" />
+            </div>
+            <button class="send-btn" id="sendBtn" onclick="handleSend()">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+
+        <!-- Agent Login Footer Link -->
+        <div style="text-align:center; padding: 8px 0 10px 0; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.06);">
+            <a href="/Account/Login" target="_blank" style="display:inline-flex; align-items:center; gap:6px; font-size:0.75rem; color:rgba(255,255,255,0.35); text-decoration:none; padding:4px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.08); transition:all 0.2s ease;" onmouseover="this.style.color='rgba(255,255,255,0.75)'; this.style.borderColor='rgba(255,255,255,0.25)';" onmouseout="this.style.color='rgba(255,255,255,0.35)'; this.style.borderColor='rgba(255,255,255,0.08)';">
+                <i class="bi bi-shield-lock"></i> Staff / Agent Login
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // State variables
+        let currentMode = 'new'; // 'new', 'track', 'live'
+        let sessionId = generateGuid();
+        let questions = [];
+        let categories = [];
+        let currentQuestionIndex = 0;
+        let lastMsgId = 0;
+        let livePollingTimer = null;
+        let isAgentConnected = false;
+        let isUploadAllowed = false;
+        let selectedUploadFile = null;
+        let liveStep = 0; // 0: ask Contact/RollNo, 1: ask FatherName, 2: ask Name, 3: connected
+        let liveAuthData = {
+            RollOrContact: '',
+            FatherName: '',
+            Name: ''
+        };
+
+        let userFormData = {
+            Name: '',
+            Mobile: '',
+            Email: '',
+            Enroll_Roll: '',
+            CTypeID: 0,
+            Subject: ''
+        };
+
+        // Chat Duration Timer
+        let chatDurationTimer = null;
+        let chatStartTime = null;
+
+        function startChatDurationTimer() {
+            stopChatDurationTimer();
+            chatStartTime = Date.now();
+            const badge = document.getElementById('chatDurationBadge');
+            badge.style.display = 'inline-flex';
+            chatDurationTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - chatStartTime) / 1000);
+                const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const ss = String(elapsed % 60).padStart(2, '0');
+                document.getElementById('chatDurationText').innerText = `${mm}:${ss}`;
+            }, 1000);
+        }
+
+        function stopChatDurationTimer() {
+            if (chatDurationTimer) {
+                clearInterval(chatDurationTimer);
+                chatDurationTimer = null;
+            }
+            chatStartTime = null;
+            const badge = document.getElementById('chatDurationBadge');
+            if (badge) badge.style.display = 'none';
+            const txt = document.getElementById('chatDurationText');
+            if (txt) txt.innerText = '00:00';
+        }
+
+        const chatBody = document.getElementById('chatBody');
+        const userInput = document.getElementById('userInput');
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadInitialData();
+            startNewTicketFlow();
+        });
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+
+        function generateGuid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function loadInitialData() {
+            try {
+                const [qRes, cRes] = await Promise.all([
+                    fetch('/api/bot/questions'),
+                    fetch('/api/bot/categories')
+                ]);
+                const qData = await qRes.json();
+                const cData = await cRes.json();
+
+                if (qData.success) questions = qData.data;
+                if (cData.success) categories = cData.data;
+            } catch (err) {
+                console.error('Error fetching bot config:', err);
+            }
+        }
+
+        function startNewTicketFlow() {
+            stopLivePolling();
+            stopChatDurationTimer();
+            deactivateUploadUI();
+            isAgentConnected = false;
+            chatBody.innerHTML = '';
+            currentQuestionIndex = 0;
+            sessionId = generateGuid();
+            userFormData = { Name: '', Mobile: '', Email: '', Enroll_Roll: '', CTypeID: 0, Subject: '' };
+
+            document.getElementById('mainHeaderAvatar').innerHTML = '<i class="bi bi-robot"></i>';
+            document.getElementById('mainHeaderTitle').innerText = 'HelpDesk ChatBot';
+                document.getElementById('mainHeaderStatus').innerText = 'Online ChatBot';
+
+                appendBotMessage("Welcome to **DR. BHIMRAO AMBEDKAR UNIVERSITY, AGRA HelpDesk**! How can we assist you today?");
+
+            
+            setTimeout(() => {
+                askNextQuestion();
+            }, 600);
+        }
+
+        function askNextQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const q = questions[currentQuestionIndex];
+                appendBotMessage(q.QuestionText);
+
+                if (q.FieldKey === 'ProblemDescription' && categories.length > 0) {
+                    appendCategoryChips();
+                }
+
+                userInput.placeholder = `Enter your ${q.FieldKey}...`;
+                userInput.focus();
+            } else {
+                submitTicketToDatabase();
+            }
+        }
+
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            appendUserMessage(text);
+            userInput.value = '';
+
+            if (currentMode === 'track') {
+                await trackTicketStatus(text);
+                return;
+            }
+
+            if (currentMode === 'live') {
+                if (liveStep === 0) {
+                    liveAuthData.RollOrContact = text;
+                    liveStep = 1;
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        appendBotMessage("Thank you! Please enter your **Father's Name**:");
+                        userInput.placeholder = "Enter Father's Name...";
+                        userInput.focus();
+                    }, 500);
+                    return;
+                } else if (liveStep === 1) {
+                    liveAuthData.FatherName = text;
+                    if (!userFormData.Name && !liveAuthData.Name) {
+                        liveStep = 2;
+                        showTypingIndicator();
+                        setTimeout(() => {
+                            removeTypingIndicator();
+                            appendBotMessage("Please enter your **Full Name**:");
+                            userInput.placeholder = "Enter your full name...";
+                            userInput.focus();
+                        }, 500);
+                        return;
+                    } else {
+                        liveStep = 3;
+                        await finalizeLiveAgentConnection();
+                        return;
+                    }
+                } else if (liveStep === 2) {
+                    liveAuthData.Name = text;
+                    liveStep = 3;
+                    await finalizeLiveAgentConnection();
+                    return;
+                } else {
+                    await sendLiveUserMessage(text);
+                    return;
+                }
+            }
+
+            // Ticket Mode
+            if (currentQuestionIndex < questions.length) {
+                const currentQ = questions[currentQuestionIndex];
+                
+                if (currentQ.FieldKey === 'FullName') userFormData.Name = text;
+                else if (currentQ.FieldKey === 'MobileNo') userFormData.Mobile = text;
+                else if (currentQ.FieldKey === 'Email') userFormData.Email = text;
+                else if (currentQ.FieldKey === 'EnrollNo') userFormData.Enroll_Roll = text;
+                else if (currentQ.FieldKey === 'ProblemDescription') {
+                    if (!userFormData.Subject) userFormData.Subject = text;
+                    else userFormData.Subject += ' - ' + text;
+                }
+
+                saveIntermediateAnswer(currentQ.QuestionId, text);
+
+                currentQuestionIndex++;
+                showTypingIndicator();
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    askNextQuestion();
+                }, 700);
+            }
+        }
+
+        async function saveIntermediateAnswer(questionId, answer) {
+            try {
+                await fetch('/api/bot/save-response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        SessionId: sessionId,
+                        QuestionId: questionId,
+                        AnswerText: answer
+                    })
+                });
+            } catch (err) {
+                console.warn('Could not save step response:', err);
+            }
+        }
+
+        async function submitTicketToDatabase() {
+            showTypingIndicator();
+            try {
+                const res = await fetch('/api/bot/create-ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userFormData)
+                });
+                const result = await res.json();
+                removeTypingIndicator();
+
+                // --- LOCKED: Admin ne new ticket creation band kiya hai ---
+                if (res.status === 423 || result.locked) {
+                    appendBotMessage(
+                        `🔒 **Ticket submission is currently unavailable.**\n\n` +
+                        `${result.message || 'New ticket creation has been temporarily disabled by the admin.'}\n\n` +
+                        `You can still **track an existing ticket** or come back later.`
+                    );
+                    // Offer track option
+                    setTimeout(() => {
+                        appendChips([{ label: '🔍 Track My Ticket', value: 'track_ticket' }]);
+                    }, 600);
+                    return;
+                }
+
+                if (result.success && result.data) {
+                    const ticket = result.data;
+                    appendBotMessage(`🎉 **Your Ticket has been generated successfully!**`);
+                    appendTicketCard(ticket);
+                    
+                    // Offer live agent transfer option!
+                    setTimeout(() => {
+                        appendBotMessage(`Would you like to connect with a **Live Support Agent**?`);
+                        appendLiveAgentChip();
+                    }, 800);
+                } else {
+                    appendBotMessage(`⚠️ Error: ${result.message || 'Could not generate ticket.'}`);
+                }
+            } catch (err) {
+                removeTypingIndicator();
+                appendBotMessage(`⚠️ A server error occurred. Please try again in a few moments.`);
+            }
+        }
+
+        async function trackTicketStatus(searchTerm) {
+            showTypingIndicator();
+            try {
+                const res = await fetch(`/api/bot/track-ticket?searchTerm=${encodeURIComponent(searchTerm)}`);
+                const result = await res.json();
+                removeTypingIndicator();
+
+                if (result.success && result.data && result.data.length > 0) {
+                    appendBotMessage(`✅ **${result.data.length} Ticket(s) found:**`);
+                    result.data.forEach(ticket => appendTicketCard(ticket));
+                } else {
+                    appendBotMessage(`❌ No ticket found matching **'${searchTerm}'**.`);
+                }
+            } catch (err) {
+                removeTypingIndicator();
+                appendBotMessage(`⚠️ Error checking ticket status.`);
+            }
+        }
+
+        // Switch Mode
+        function switchMode(mode) {
+            deactivateUploadUI();
+            currentMode = mode;
+            document.getElementById('btnModeNew').classList.toggle('active', mode === 'new');
+            document.getElementById('btnModeTrack').classList.toggle('active', mode === 'track');
+            document.getElementById('btnModeLive').classList.toggle('active', mode === 'live');
+
+            if (mode === 'track') {
+                stopLivePolling();
+                chatBody.innerHTML = '';
+                appendBotMessage(`🔍 **Ticket Status Tracking Mode**`);
+                appendBotMessage(`Please enter your **Ticket ID** (e.g., \`S-2600101\`) or **Roll / Enrollment Number**:`);
+                userInput.placeholder = "Enter Ticket ID or Roll No...";
+                userInput.focus();
+            } else if (mode === 'live') {
+                startLiveAgentMode();
+            } else {
+                startNewTicketFlow();
+            }
+        }
+
+        // Live Agent Mode Initiation
+        function startLiveAgentMode() {
+            deactivateUploadUI();
+            chatBody.innerHTML = '';
+            lastMsgId = 0;
+            isAgentConnected = false;
+            stopChatDurationTimer();
+            liveStep = 0;
+            liveAuthData = { RollOrContact: '', FatherName: '', Name: '' };
+
+            document.getElementById('mainHeaderAvatar').innerHTML = '<i class="bi bi-headset"></i>';
+            document.getElementById('mainHeaderTitle').innerText = 'Live Support Chat';
+            document.getElementById('mainHeaderStatus').innerText = 'Verification in Progress';
+
+            appendBotMessage("Welcome! Please complete student verification before connecting to a Live Support Agent.");
+            appendBotMessage("Please enter your **Mobile Number or Roll No / Enrollment Number**:");
+
+            userInput.placeholder = "Enter Mobile Number or Roll No...";
+            userInput.focus();
+        }
+
+        async function finalizeLiveAgentConnection() {
+            showTypingIndicator();
+            document.getElementById('mainHeaderStatus').innerText = 'Connecting to Live Agent...';
+
+            const displayName = liveAuthData.Name || userFormData.Name || 'Student';
+            const rollVal = userFormData.Enroll_Roll || liveAuthData.RollOrContact;
+            const contactVal = userFormData.Mobile || liveAuthData.RollOrContact;
+            const fatherVal = liveAuthData.FatherName;
+
+            let isAgentLive = true;
+            try {
+                const res = await fetch('/api/bot/request-agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        SessionId: sessionId,
+                        UserName: displayName,
+                        UserContact: contactVal,
+                        FatherName: fatherVal,
+                        RollNo: rollVal
+                    })
+                });
+                const result = await res.json();
+                // Check if any agent is currently logged in and active
+                if (!result.success || !result.agentOnline || result.onlineAgentCount === 0 ||
+                    (result.data && (result.data.OnlineAgentCount === 0 || result.data.onlineAgentCount === 0))) {
+                    isAgentLive = false;
+                }
+            } catch (e) {
+                console.error('Request agent error:', e);
+            }
+
+            if (!isAgentLive) {
+                document.getElementById('mainHeaderStatus').innerText = 'Offline (Waiting for Agent...)';
+                appendBotOfflineNotice();
+                // Keep polling so if an agent logs in and accepts, student connects!
+                startLivePolling();
+                return;
+            }
+
+            appendBotMessage("Verification completed! Your request has been sent to our live agents.");
+            appendBotMessage("Please hold on, an agent will join shortly...");
+            startLivePolling();
+        }
+
+        function appendBotOfflineNotice() {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const row = document.createElement('div');
+            row.className = 'message-row bot-row';
+            row.innerHTML = `
+                <div class="avatar-mini bot-avatar" style="background: linear-gradient(135deg, #ef4444, #f59e0b);"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <div style="font-size: 0.74rem; color: #fca5a5; margin-bottom: 3px; font-weight: 600;"><i class="bi bi-hourglass-split"></i> Queued for Support Agent</div>
+                    <div class="bubble-content bot-bubble" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(35, 22, 12, 0.92);">
+                        <p style="font-weight: 700; color: #fde68a; margin-bottom: 6px; font-size: 0.95rem;"><i class="bi bi-info-circle-fill"></i> All Support Agents Are Currently Offline</p>
+                        <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.55;">Your request has been placed in the <strong>Live Waiting Queue</strong>. As soon as an agent logs in, they will be notified to accept your chat.</p>
+                        <p style="font-size: 0.82rem; color: #cbd5e1; margin-top: 8px;">You can wait on this screen (you will be connected automatically when an agent joins) or return to home.</p>
+                        <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                            <button class="chip-btn" style="background: rgba(239, 68, 68, 0.25); border-color: #ef4444; color: #fff;" onclick="switchMode('new')">
+                                <i class="bi bi-x-circle-fill"></i> Close Chat & Return Home
+                            </button>
+                            <button class="chip-btn" style="background: rgba(59, 130, 246, 0.25); border-color: #3b82f6; color: #fff;" onclick="switchMode('track')">
+                                <i class="bi bi-search"></i> Track Ticket Status
+                            </button>
+                        </div>
+                    </div>
+                    <div class="msg-time">${time}</div>
+                </div>
+            `;
+            chatBody.appendChild(row);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function playStudentConnectChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12);
+                osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.24);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.6);
+            } catch (e) {}
+        }
+
+        function startLivePolling() {
+            stopLivePolling();
+            livePollingTimer = setInterval(pollLiveMessages, 2500);
+        }
+
+        function stopLivePolling() {
+            if (livePollingTimer) {
+                clearInterval(livePollingTimer);
+                livePollingTimer = null;
+            }
+            stopChatDurationTimer();
+        }
+
+        async function pollLiveMessages() {
+            if (currentMode !== 'live') return;
+
+            try {
+                const res = await fetch(`/api/bot/messages?sessionId=${sessionId}&lastId=${lastMsgId}`);
+                const data = await res.json();
+                if (data.success && data.data && data.data.length > 0) {
+                    data.data.forEach(m => {
+                        if (m.SenderType === 'Agent') {
+                            appendAgentMessage(m.SenderName, m.MessageText, m.ThemeColor, m.AttachmentUrl, m.AttachmentType, m.AttachmentName);
+                            if (!isAgentConnected) {
+                                isAgentConnected = true;
+                                document.getElementById('mainHeaderStatus').innerText = `Connected with ${m.SenderName}`;
+                                startChatDurationTimer();
+                            }
+                        } else if (m.SenderType === 'Bot') {
+                            if (m.MessageText && m.MessageText.includes('[Upload Requested]')) {
+                                activateUploadUI(m.MessageText);
+                            }
+                            appendBotMessage(m.MessageText);
+                            if (m.MessageText && m.MessageText.includes('[Agent Connected]')) {
+                                if (!isAgentConnected) {
+                                    isAgentConnected = true;
+                                    startChatDurationTimer();
+                                }
+                                document.getElementById('mainHeaderStatus').innerText = 'Connected with Live Agent';
+                                document.getElementById('mainHeaderAvatar').innerHTML = '<i class="bi bi-person-check-fill" style="color:#34d399;"></i>';
+                                playStudentConnectChime();
+                            }
+                        } else if (m.SenderType === 'User') {
+                            // If user message with attachment was polled (e.g. from reload)
+                            if (m.AttachmentUrl && m.MessageId > lastMsgId) {
+                                appendUserMessage(m.MessageText, m.AttachmentUrl, m.AttachmentType, m.AttachmentName);
+                            }
+                        }
+                        if (m.MessageId > lastMsgId) lastMsgId = m.MessageId;
+                    });
+                }
+            } catch (err) {
+                console.error('Polling error:', err);
+            }
+        }
+
+        function activateUploadUI(promptText) {
+            isUploadAllowed = true;
+            const banner = document.getElementById('uploadRequestBanner');
+            const clipBtn = document.getElementById('btnStudentAttach');
+            
+            if (promptText) {
+                let clean = promptText
+                    .replace(/\[Upload Requested\]\s*/gi, '')
+                    .replace(/\[Upload button is now active below\]\.?/gi, '')
+                    .replace(/📎\s*/g, '')
+                    .trim();
+                if (clean) {
+                    document.getElementById('urbDesc').innerText = `${clean} (Max 2MB - Large photos are auto-compressed)`;
+                }
+            } else {
+                document.getElementById('urbDesc').innerText = 'Please choose file (Max 2MB - photos are auto-compressed).';
+            }
+
+            banner.style.display = 'flex';
+            clipBtn.classList.add('active-upload');
+            clipBtn.title = "Upload requested by agent! Click to choose file.";
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function deactivateUploadUI() {
+            isUploadAllowed = false;
+            selectedUploadFile = null;
+            const banner = document.getElementById('uploadRequestBanner');
+            const clipBtn = document.getElementById('btnStudentAttach');
+            const fileInput = document.getElementById('studentFileInput');
+            const txtChoose = document.getElementById('txtChooseFile');
+            const btnConfirm = document.getElementById('btnConfirmUpload');
+
+            if (banner) banner.style.display = 'none';
+            if (clipBtn) {
+                clipBtn.classList.remove('active-upload');
+                clipBtn.title = "File upload is locked (Enabled only when requested by Agent)";
+            }
+            if (fileInput) fileInput.value = '';
+            if (txtChoose) txtChoose.innerText = 'Choose File';
+            if (btnConfirm) {
+                btnConfirm.style.display = 'none';
+                btnConfirm.disabled = false;
+                btnConfirm.innerHTML = '<i class="bi bi-upload"></i> Send File';
+            }
+        }
+
+        function onStudentClipClick() {
+            if (isUploadAllowed) {
+                document.getElementById('studentFileInput').click();
+            } else {
+                alert('📎 File upload is currently locked.\n\nYour support agent will unlock this option whenever they need a document, screenshot, or photo from you.');
+            }
+        }
+
+        // Auto-Compress Image function (ensures file <= 2MB with crystal-clear quality)
+        function compressImageFile(file, maxBytes = 2 * 1024 * 1024) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const objectUrl = URL.createObjectURL(file);
+                img.src = objectUrl;
+
+                img.onload = () => {
+                    URL.revokeObjectURL(objectUrl);
+                    let width = img.naturalWidth || img.width;
+                    let height = img.naturalHeight || img.height;
+                    const maxDim = 1920; // 1080p / 1920px max dimension is optimal for documents & photos
+
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    let quality = 0.88;
+                    function step(q) {
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                resolve(file);
+                                return;
+                            }
+                            if (blob.size <= maxBytes || q <= 0.4) {
+                                const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                                const compressedFile = new File([blob], newName, {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                resolve(compressedFile);
+                            } else {
+                                step(q - 0.15);
+                            }
+                        }, 'image/jpeg', q);
+                    }
+                    step(quality);
+                };
+
+                img.onerror = () => {
+                    URL.revokeObjectURL(objectUrl);
+                    resolve(file);
+                };
+            });
+        }
+
+        async function onStudentFileChosen(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const maxLimit = 2 * 1024 * 1024; // 2MB limit
+            const txt = document.getElementById('txtChooseFile');
+            const btnConfirm = document.getElementById('btnConfirmUpload');
+
+            const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(file.name);
+
+            if (isImage) {
+                // If image exceeds 2MB (or is close), compress it automatically
+                if (file.size > maxLimit) {
+                    txt.innerHTML = '<i class="bi bi-hourglass-split"></i> Compressing image...';
+                    btnConfirm.style.display = 'none';
+
+                    try {
+                        const originalMb = (file.size / (1024 * 1024)).toFixed(1);
+                        const compressed = await compressImageFile(file, 1.8 * 1024 * 1024);
+                        const compMb = (compressed.size / (1024 * 1024)).toFixed(2);
+
+                        selectedUploadFile = compressed;
+                        let displayName = compressed.name;
+                        if (displayName.length > 18) displayName = displayName.substring(0, 15) + '...';
+
+                        txt.innerHTML = `<i class="bi bi-file-earmark-check"></i> ${escapeHtml(displayName)} (${compMb}MB)`;
+                        btnConfirm.style.display = 'inline-flex';
+                        btnConfirm.innerHTML = `<i class="bi bi-upload"></i> Send (${compMb}MB)`;
+                        return;
+                    } catch (err) {
+                        console.warn('Image compression fallback:', err);
+                        selectedUploadFile = file;
+                    }
+                } else {
+                    selectedUploadFile = file;
+                    const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                    let displayName = file.name;
+                    if (displayName.length > 18) displayName = displayName.substring(0, 15) + '...';
+                    txt.innerHTML = `<i class="bi bi-image"></i> ${escapeHtml(displayName)} (${sizeMb}MB)`;
+                    btnConfirm.style.display = 'inline-flex';
+                    btnConfirm.innerHTML = `<i class="bi bi-upload"></i> Send (${sizeMb}MB)`;
+                    return;
+                }
+            } else {
+                // Non-image document (PDF, Word, Excel, etc.)
+                if (file.size > maxLimit) {
+                    const docMb = (file.size / (1024 * 1024)).toFixed(2);
+                    alert(`⚠️ File size exceeds the 2MB limit.\n\nYour file "${file.name}" is ${docMb} MB.\nPlease select a document under 2MB.`);
+                    event.target.value = '';
+                    selectedUploadFile = null;
+                    txt.innerText = 'Choose File';
+                    btnConfirm.style.display = 'none';
+                    return;
+                }
+
+                selectedUploadFile = file;
+                const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                let displayName = file.name;
+                if (displayName.length > 18) displayName = displayName.substring(0, 15) + '...';
+                txt.innerHTML = `<i class="bi bi-file-earmark-text"></i> ${escapeHtml(displayName)} (${sizeMb}MB)`;
+                btnConfirm.style.display = 'inline-flex';
+                btnConfirm.innerHTML = `<i class="bi bi-upload"></i> Send (${sizeMb}MB)`;
+            }
+        }
+
+        async function submitStudentUpload() {
+            if (!selectedUploadFile) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            const btnConfirm = document.getElementById('btnConfirmUpload');
+            btnConfirm.disabled = true;
+            btnConfirm.innerHTML = '<i class="bi bi-hourglass-split"></i> Uploading...';
+
+            try {
+                const formData = new FormData();
+                formData.append('sessionId', sessionId);
+                formData.append('file', selectedUploadFile);
+                formData.append('senderName', liveAuthData.Name || userFormData.Name || 'Student');
+
+                const res = await fetch('/api/bot/upload-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const m = data.data;
+                    appendUserMessage(m.MessageText, m.AttachmentUrl, m.AttachmentType, m.AttachmentName);
+                    if (m.MessageId > lastMsgId) lastMsgId = m.MessageId;
+
+                    // Immediately lock / deactivate the upload UI
+                    deactivateUploadUI();
+                } else {
+                    alert(data.message || 'Failed to upload file.');
+                    btnConfirm.disabled = false;
+                    btnConfirm.innerHTML = '<i class="bi bi-upload"></i> Send File';
+                }
+            } catch (err) {
+                console.error('File upload error:', err);
+                alert('Network error while uploading file.');
+                btnConfirm.disabled = false;
+                btnConfirm.innerHTML = '<i class="bi bi-upload"></i> Send File';
+            }
+        }
+
+        async function sendLiveUserMessage(text) {
+            try {
+                const res = await fetch('/api/bot/send-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        SessionId: sessionId,
+                        SenderName: userFormData.Name || 'Student',
+                        MessageText: text
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    if (data.data.MessageId > lastMsgId) lastMsgId = data.data.MessageId;
+                }
+            } catch (err) {
+                console.error('Live send error:', err);
+            }
+        }
+
+        function resetChat() {
+            if (currentMode === 'new') startNewTicketFlow();
+            else if (currentMode === 'live') startLiveAgentMode();
+            else switchMode('track');
+        }
+
+        function appendCategoryChips() {
+            const chipWrapper = document.createElement('div');
+            chipWrapper.className = 'chips-container';
+
+            categories.slice(0, 6).forEach(c => {
+                const chip = document.createElement('button');
+                chip.className = 'chip-btn';
+                chip.innerHTML = `<i class="bi bi-tag"></i> ${c.TypeName}`;
+                chip.onclick = () => {
+                    userFormData.CTypeID = c.CTypeID;
+                    userFormData.Subject = c.TypeName;
+                    appendUserMessage(c.TypeName);
+                    chipWrapper.remove();
+                    currentQuestionIndex++;
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        askNextQuestion();
+                    }, 500);
+                };
+                chipWrapper.appendChild(chip);
+            });
+
+            chatBody.appendChild(chipWrapper);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function appendLiveAgentChip() {
+            const chipWrapper = document.createElement('div');
+            chipWrapper.className = 'chips-container';
+
+            const chip = document.createElement('button');
+            chip.className = 'chip-btn';
+            chip.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(6, 182, 212, 0.3))';
+            chip.style.borderColor = '#10b981';
+            chip.innerHTML = `<i class="bi bi-headset"></i> Connect with Live Support Agent Now`;
+            chip.onclick = () => {
+                switchMode('live');
+            };
+            chipWrapper.appendChild(chip);
+            chatBody.appendChild(chipWrapper);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function cleanSystemText(text) {
+            if (!text) return '';
+            return text
+                .replace(/\[Agent Connected\]\s*/gi, '')
+                .replace(/\[Chat Closed\]\s*/gi, '')
+                .replace(/\[Transferred\]\s*/gi, '')
+                .replace(/\[Chat Transferred\]\s*/gi, '')
+                .replace(/\[Upload Requested\]\s*/gi, '')
+                .replace(/ðŸ”„\s*/gi, '')
+                .replace(/[\u00F0\u0178\u201D\u201E]/g, '')
+                .replace(/ð[^\s]*/g, '')
+                .trim();
+        }
+
+        function appendBotMessage(html) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const row = document.createElement('div');
+            row.className = 'message-row bot-row';
+
+            let extraTag = '';
+            if (html && html.includes('[Agent Connected]')) {
+                extraTag = `<div style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; display:inline-block;"><i class="bi bi-person-check-fill"></i> Agent Connected</div><br/>`;
+            } else if (html && html.includes('[Chat Closed]')) {
+                extraTag = `<div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; display:inline-block;"><i class="bi bi-lock-fill"></i> Chat Ended</div><br/>`;
+            } else if (html && (html.includes('[Transferred]') || html.includes('[Chat Transferred]'))) {
+                extraTag = `<div style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06b6d4; color: #67e8f9; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; display:inline-block;"><i class="bi bi-arrow-left-right"></i> Chat Transferred</div><br/>`;
+            } else if (html && html.includes('[Upload Requested]')) {
+                extraTag = `<div style="background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #c084fc; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; display:inline-block;"><i class="bi bi-paperclip"></i> Upload Requested by Agent</div><br/>`;
+            }
+
+            const cleanHtml = cleanSystemText(html);
+
+            row.innerHTML = `
+                <div class="avatar-mini bot-avatar"><i class="bi bi-robot"></i></div>
+                <div>
+                    <div style="font-size: 0.74rem; color: #a78bfa; margin-bottom: 3px; font-weight: 600;"><i class="bi bi-robot"></i>  AI Bot</div>
+                    <div class="bubble-content bot-bubble">${extraTag}${formatMarkdown(cleanHtml)}</div>
+                    <div class="msg-time">${time}</div>
+                </div>
+            `;
+            chatBody.appendChild(row);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        const agentThemeMap = {
+            emerald: { bg: 'linear-gradient(135deg, #047857 0%, #059669 50%, #0d9488 100%)', border: 'rgba(110, 231, 183, 0.35)', tag: '#6ee7b7' },
+            cyan: { bg: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #0ea5e9 100%)', border: 'rgba(103, 232, 249, 0.35)', tag: '#67e8f9' },
+            purple: { bg: 'linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #a855f7 100%)', border: 'rgba(192, 132, 252, 0.35)', tag: '#c084fc' },
+            amber: { bg: 'linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%)', border: 'rgba(253, 224, 71, 0.35)', tag: '#fde047' },
+            rose: { bg: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #f43f5e 100%)', border: 'rgba(253, 164, 175, 0.35)', tag: '#fda4af' },
+            indigo: { bg: 'linear-gradient(135deg, #3730a3 0%, #4338ca 50%, #6366f1 100%)', border: 'rgba(165, 180, 252, 0.35)', tag: '#a5b4fc' }
+        };
+
+        function appendAgentMessage(agentName, text, themeColor, attachmentUrl, attachmentType, attachmentName) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const row = document.createElement('div');
+            row.className = 'message-row agent-row';
+            const theme = agentThemeMap[themeColor || 'emerald'] || agentThemeMap['emerald'];
+
+            let attachmentHtml = '';
+            if (attachmentUrl) {
+                if (attachmentType === 'image') {
+                    attachmentHtml = `
+                        <div style="margin-top: 8px;">
+                            <a href="${attachmentUrl}" target="_blank" title="Click to view full image">
+                                <img src="${attachmentUrl}" alt="${escapeHtml(attachmentName || 'Photo')}" class="chat-img-thumb" />
+                            </a>
+                            <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                                <i class="bi bi-image"></i> ${escapeHtml(attachmentName || 'Photo')}
+                                <a href="${attachmentUrl}" download style="color: #67e8f9; text-decoration: none; font-weight: 600;"><i class="bi bi-download"></i> Download</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    attachmentHtml = `
+                        <div style="margin-top: 8px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-file-earmark-text-fill" style="font-size: 22px; color: #67e8f9;"></i>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; font-size: 0.8rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(attachmentName || 'Document')}</div>
+                                <a href="${attachmentUrl}" download target="_blank" style="font-size: 0.72rem; color: #6ee7b7; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                    <i class="bi bi-download"></i> Download File
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            row.innerHTML = `
+                <div class="avatar-mini agent-avatar" style="background: ${theme.bg}; border-color: ${theme.border};"><i class="bi bi-headset"></i></div>
+                <div>
+                    <div style="font-size: 0.74rem; color: ${theme.tag}; margin-bottom: 3px; font-weight: 600;"><i class="bi bi-headset"></i> Support Agent (${escapeHtml(agentName)})</div>
+                    <div class="bubble-content agent-bubble" style="background: ${theme.bg}; border-color: ${theme.border};">${escapeHtml(text)}${attachmentHtml}</div>
+                    <div class="msg-time">${time}</div>
+                </div>
+            `;
+            chatBody.appendChild(row);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function appendUserMessage(text, attachmentUrl, attachmentType, attachmentName) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const row = document.createElement('div');
+            row.className = 'message-row user-row';
+
+            let attachmentHtml = '';
+            if (attachmentUrl) {
+                if (attachmentType === 'image') {
+                    attachmentHtml = `
+                        <div style="margin-top: 8px;">
+                            <a href="${attachmentUrl}" target="_blank" title="Click to view full image">
+                                <img src="${attachmentUrl}" alt="${escapeHtml(attachmentName || 'Photo')}" class="chat-img-thumb" />
+                            </a>
+                            <div style="font-size: 0.72rem; color: #cbd5e1; margin-top: 4px; display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
+                                <i class="bi bi-image"></i> ${escapeHtml(attachmentName || 'Photo')}
+                                <a href="${attachmentUrl}" download style="color: #67e8f9; text-decoration: none; font-weight: 600;"><i class="bi bi-download"></i> Download</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    attachmentHtml = `
+                        <div style="margin-top: 8px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; text-align: left;">
+                            <i class="bi bi-file-earmark-text-fill" style="font-size: 22px; color: #67e8f9;"></i>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; font-size: 0.8rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(attachmentName || 'Document')}</div>
+                                <a href="${attachmentUrl}" download target="_blank" style="font-size: 0.72rem; color: #6ee7b7; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                    <i class="bi bi-download"></i> Download File
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            row.innerHTML = `
+                <div class="avatar-mini user-avatar"><i class="bi bi-person-fill"></i></div>
+                <div>
+                    <div style="font-size: 0.74rem; color: #93c5fd; margin-bottom: 3px; font-weight: 600; text-align:right;"><i class="bi bi-person-fill"></i> You</div>
+                    <div class="bubble-content user-bubble">${escapeHtml(text)}${attachmentHtml}</div>
+                    <div class="msg-time">${time}</div>
+                </div>
+            `;
+            chatBody.appendChild(row);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function appendTicketCard(t) {
+            const statusClass = `status-${(t.Status || 'open').toLowerCase().replace('-', '')}`;
+            const dateStr = new Date(t.CreatedDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+            const card = document.createElement('div');
+            card.className = 'ticket-glass-card';
+            card.innerHTML = `
+                <div class="ticket-header-box">
+                    <div>
+                        <div class="ticket-label">Ticket ID</div>
+                        <div class="ticket-id-tag">${t.TicketID}</div>
+                    </div>
+                    <span class="status-badge ${statusClass}">${t.Status}</span>
+                </div>
+                <div class="ticket-grid">
+                    <div>
+                        <div class="ticket-label">Student Name</div>
+                        <div class="ticket-val">${t.Name || 'N/A'}</div>
+                    </div>
+                    <div>
+                        <div class="ticket-label">Enroll / Roll No</div>
+                        <div class="ticket-val">${t.Enroll_Roll || 'N/A'}</div>
+                    </div>
+                    <div>
+                        <div class="ticket-label">Category</div>
+                        <div class="ticket-val">${t.Category || 'General'}</div>
+                    </div>
+                    <div>
+                        <div class="ticket-label">Created Date</div>
+                        <div class="ticket-val">${dateStr}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div class="ticket-label">Problem / Subject</div>
+                    <div class="ticket-val" style="font-size: 0.88rem; color: #cbd5e1; margin-top: 3px;">${t.Subject || 'N/A'}</div>
+                </div>
+            `;
+            chatBody.appendChild(card);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            removeTypingIndicator();
+            const typing = document.createElement('div');
+            typing.id = 'botTyping';
+            typing.className = 'message-row bot-row';
+            typing.innerHTML = `
+                <div class="avatar-mini bot-avatar"><i class="bi bi-robot"></i></div>
+                <div class="typing-bubble">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            `;
+            chatBody.appendChild(typing);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const el = document.getElementById('botTyping');
+            if (el) el.remove();
+        }
+
+        function formatMarkdown(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.15);padding:2px 6px;border-radius:4px;font-family:monospace;">$1</code>')
+                .replace(/\n/g, '<br/>');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

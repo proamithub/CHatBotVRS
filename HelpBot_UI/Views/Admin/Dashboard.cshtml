@@ -1,0 +1,2093 @@
+@{
+    ViewData["Title"] = "Admin Control Center -  HelpDesk";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard & History -  HelpDesk</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.14);
+            --glass-card: rgba(15, 23, 42, 0.7);
+            --glass-card-hover: rgba(30, 41, 59, 0.85);
+            --glass-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.45);
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 10% 10%, #1e1b4b 0%, #0f172a 45%, #020617 100%);
+            color: var(--text-primary);
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glowing Background Orbs */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.45;
+            animation: floatOrb 25s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 500px; height: 500px; background: linear-gradient(135deg, #6366f1, #3b82f6); top: -120px; left: -100px; }
+        .orb-2 { width: 450px; height: 450px; background: linear-gradient(135deg, #ec4899, #8b5cf6); bottom: -120px; right: -80px; }
+        .orb-3 { width: 350px; height: 350px; background: linear-gradient(135deg, #06b6d4, #10b981); top: 40%; left: 40%; opacity: 0.25; }
+
+        @@keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 35px) scale(1.1); }
+            100% { transform: translate(-40px, 60px) scale(0.92); }
+        }
+
+        /* Main Admin Wrapper */
+        .admin-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header Bar */
+        .admin-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35);
+        }
+
+        .brand-titles h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(139, 92, 246, 0.4));
+            border: 1px solid rgba(236, 72, 153, 0.5);
+            color: #fbcfe8;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .brand-titles span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .glass-btn-primary {
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #fff;
+        }
+        .glass-btn-primary:hover {
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
+        }
+
+        .glass-btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+        .glass-btn-danger:hover {
+            background: rgba(239, 68, 68, 0.28);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--glass-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: var(--glass-card-hover);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .stat-card.card-purple::after { background: linear-gradient(90deg, #8b5cf6, #c084fc); }
+        .stat-card.card-emerald::after { background: linear-gradient(90deg, #10b981, #34d399); }
+        .stat-card.card-amber::after { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .stat-card.card-cyan::after { background: linear-gradient(90deg, #06b6d4, #38bdf8); }
+        .stat-card.card-indigo::after { background: linear-gradient(90deg, #6366f1, #818cf8); }
+        .stat-card.card-rose::after { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+        .stat-card.card-blue::after { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+        .stat-info .stat-label {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-info .stat-value {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .stat-card.card-purple .stat-icon { background: rgba(139, 92, 246, 0.18); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .stat-card.card-emerald .stat-icon { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .stat-card.card-amber .stat-icon { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .stat-card.card-cyan .stat-icon { background: rgba(6, 182, 212, 0.18); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+        .stat-card.card-indigo .stat-icon { background: rgba(99, 102, 241, 0.18); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+        .stat-card.card-rose .stat-icon { background: rgba(244, 63, 94, 0.18); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .stat-card.card-blue .stat-icon { background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        /* Navigation Tabs */
+        .admin-nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(139, 92, 246, 0.45));
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+        }
+
+        .tab-badge {
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 8px;
+            padding: 2px 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        /* Content Panel Containers */
+        .tab-content-panel {
+            background: var(--glass-card);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--glass-border);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: var(--glass-shadow);
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .tab-content-panel.active {
+            display: flex;
+        }
+
+        /* Filter Controls Bar */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .glass-input, .glass-select {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #f8fafc;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .glass-input:focus, .glass-select:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+        }
+        .glass-select option {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Data Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .admin-table th {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .admin-table tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-live {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .badge-waiting {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fde047;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            animation: pulseAlert 1.8s infinite;
+        }
+        .badge-closed {
+            background: rgba(148, 163, 184, 0.2);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        .badge-bot {
+            background: rgba(139, 92, 246, 0.2);
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+        .badge-admin {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(139, 92, 246, 0.35));
+            color: #fbcfe8;
+            border: 1px solid rgba(236, 72, 153, 0.5);
+        }
+        .badge-agent {
+            background: rgba(6, 182, 212, 0.2);
+            color: #67e8f9;
+            border: 1px solid rgba(6, 182, 212, 0.4);
+        }
+
+        @@keyframes pulseAlert {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .dot-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-online {
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+        .dot-offline {
+            background: #64748b;
+        }
+
+        /* Action Buttons */
+        .btn-action-sm {
+            padding: 5px 10px;
+            font-size: 0.76rem;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .btn-view-transcript {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #a5b4fc;
+        }
+        .btn-view-transcript:hover {
+            background: rgba(99, 102, 241, 0.35);
+            color: #fff;
+        }
+        .btn-transfer-sm {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.4);
+            color: #67e8f9;
+        }
+        .btn-transfer-sm:hover {
+            background: rgba(6, 182, 212, 0.35);
+            color: #fff;
+        }
+        .btn-edit-sm {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #fde047;
+        }
+        .btn-edit-sm:hover {
+            background: rgba(245, 158, 11, 0.35);
+            color: #fff;
+        }
+        .btn-delete-sm {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+        .btn-delete-sm:hover:not([disabled]) {
+            background: rgba(239, 68, 68, 0.35);
+            color: #fff;
+        }
+        .btn-key-sm {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.35);
+            color: #fbbf24;
+        }
+        .btn-key-sm:hover {
+            background: rgba(245, 158, 11, 0.35);
+            color: #fff;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .glass-modal {
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 22px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            max-width: 600px;
+            max-height: 88vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-transcript-size {
+            max-width: 820px;
+        }
+
+        @@keyframes modalPop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover { color: #f8fafc; }
+
+        .modal-body {
+            padding: 22px 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        /* Transcript Stream */
+        .transcript-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .transcript-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 82%;
+        }
+        .transcript-msg.msg-student {
+            align-self: flex-start;
+        }
+        .transcript-msg.msg-agent {
+            align-self: flex-end;
+        }
+        .transcript-msg.msg-system {
+            align-self: center;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .t-bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.86rem;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+        .t-bubble-student {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: #fff;
+            border: 1px solid rgba(147, 197, 253, 0.3);
+        }
+        .t-bubble-agent {
+            background: linear-gradient(135deg, #047857, #059669);
+            color: #fff;
+            border: 1px solid rgba(110, 231, 183, 0.3);
+        }
+        .t-bubble-system {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+        .t-meta {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
+
+        /* Empty States */
+        .table-empty-state {
+            padding: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .table-empty-icon {
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #475569;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #10b981;
+        }
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Comprehensive Mobile Responsiveness */
+        @@media (max-width: 992px) {
+            body { padding: 12px; }
+            .admin-wrapper { gap: 14px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .admin-header { flex-direction: column; gap: 14px; align-items: stretch; padding: 14px 18px; }
+            .header-actions { flex-wrap: wrap; width: 100%; gap: 8px; }
+            .header-actions .glass-btn { flex: 1 1 auto; justify-content: center; }
+            .filter-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+            .filter-group { width: 100%; }
+            .filter-group .glass-input, .filter-group .glass-select, .filter-group .glass-btn { width: 100% !important; }
+        }
+
+        @@media (max-width: 768px) {
+            body { padding: 8px; }
+            .admin-header { padding: 12px 14px; border-radius: 16px; }
+            .header-brand { gap: 10px; }
+            .brand-icon-box { width: 40px; height: 40px; font-size: 18px; border-radius: 12px; }
+            .brand-titles h1 { font-size: 1.05rem; }
+            .brand-badge { font-size: 0.65rem; }
+            .brand-titles span { font-size: 0.72rem; }
+            
+            .header-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .header-actions .glass-btn { padding: 8px 10px; font-size: 0.78rem; text-align: center; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stat-card { padding: 12px 14px; border-radius: 14px; }
+            .stat-info .stat-label { font-size: 0.68rem; }
+            .stat-info .stat-value { font-size: 1.25rem; }
+            .stat-icon { width: 36px; height: 36px; font-size: 16px; border-radius: 10px; }
+
+            .admin-nav-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding: 4px;
+                gap: 6px;
+                scrollbar-width: none;
+            }
+            .admin-nav-tabs::-webkit-scrollbar { display: none; }
+            .tab-btn { padding: 8px 14px; font-size: 0.8rem; flex-shrink: 0; }
+
+            .tab-content-panel { padding: 14px; border-radius: 16px; gap: 14px; }
+
+            .admin-table th, .admin-table td { padding: 10px 12px; font-size: 0.8rem; }
+
+            .modal-overlay { padding: 8px; }
+            .glass-modal { max-width: 100%; max-height: 94vh; border-radius: 16px; }
+            .modal-header, .modal-body, .modal-footer { padding: 14px 16px; }
+            .modal-footer { flex-direction: column-reverse; width: 100%; }
+            .modal-footer .glass-btn { width: 100%; justify-content: center; }
+            .transcript-msg { max-width: 95%; }
+        }
+
+        @@media (max-width: 480px) {
+            body { padding: 4px; overflow-x: hidden; }
+
+            /* Brand header compact */
+            .brand-titles h1 { font-size: 0.88rem; line-height: 1.3; }
+            .brand-titles span { font-size: 0.68rem; }
+            .brand-badge { font-size: 0.6rem; padding: 2px 6px; }
+            .brand-icon-box { width: 36px; height: 36px; font-size: 16px; border-radius: 10px; }
+            .admin-header { padding: 10px 12px; border-radius: 14px; }
+
+            /* Stats: 2-column grid on small screens */
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .stat-card { padding: 10px 12px; border-radius: 12px; }
+            .stat-info .stat-value { font-size: 1.1rem; }
+            .stat-info .stat-label { font-size: 0.65rem; }
+            .stat-icon { width: 32px; height: 32px; font-size: 14px; border-radius: 9px; }
+
+            /* Header action buttons: single column */
+            .header-actions { grid-template-columns: 1fr; gap: 5px; }
+            .header-actions .glass-btn { font-size: 0.8rem; padding: 8px 10px; }
+
+            /* Tabs: scrollable, smaller text */
+            .tab-btn { padding: 7px 12px; font-size: 0.76rem; }
+
+            /* Tables: reduce font + padding, wrap actions */
+            .admin-table th, .admin-table td { padding: 8px 8px; font-size: 0.74rem; }
+            .admin-table .glass-btn { padding: 4px 8px; font-size: 0.72rem; }
+            /* Action column: prevent wrapping */
+            .admin-table td:last-child { white-space: nowrap; }
+
+            /* Filter bar */
+            .filter-bar { padding: 10px 12px; gap: 8px; }
+            .filter-group { gap: 6px; }
+            .glass-input, .glass-select { font-size: 0.84rem; padding: 9px 12px; }
+
+            /* Modals: near-fullscreen */
+            .modal-overlay { padding: 6px; }
+            .glass-modal {
+                max-height: 96dvh;
+                max-height: 96vh;
+                border-radius: 14px;
+            }
+            .modal-body { padding: 12px; overflow-y: auto; }
+            .modal-header { padding: 11px 14px; }
+            .modal-header h3 { font-size: 0.95rem; }
+            .modal-footer { padding: 10px 14px; gap: 7px; }
+
+            /* Transcript messages */
+            .transcript-msg { max-width: 98%; }
+            .transcript-msg .bubble { font-size: 0.82rem; padding: 8px 12px; }
+
+            /* Agent management: action buttons */
+            .agent-actions-cell { display: flex; flex-direction: column; gap: 4px; }
+
+            /* Tab content panels */
+            .tab-content-panel { padding: 10px; gap: 10px; border-radius: 14px; }
+        }
+
+        /* --- 360px: Very tiny phones --- */
+        @@media (max-width: 360px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 4px; }
+            .stat-info .stat-value { font-size: 1rem; }
+            .brand-titles h1 { font-size: 0.82rem; }
+            .tab-btn { padding: 6px 10px; font-size: 0.72rem; }
+            .admin-table th, .admin-table td { padding: 6px 6px; font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <div class="admin-wrapper">
+
+        <!-- Top Header Bar -->
+        <div class="admin-header">
+            <div class="header-brand">
+                <div class="brand-icon-box">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <div class="brand-titles">
+                    <h1>HelpDesk Admin Console <span class="brand-badge">SuperAdmin</span></h1>
+                    <span>Logged in as <strong>@ViewBag.AdminName</strong> (@ViewBag.AdminEmail)</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <a href="/Agent/Dashboard" class="glass-btn" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.35)); border-color: rgba(6, 182, 212, 0.4); color: #67e8f9;">
+                    <i class="bi bi-headset"></i>
+                    <span>Agent Workspace</span>
+                </a>
+                <a href="/" target="_blank" class="glass-btn">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    <span>Student Portal</span>
+                </a>
+                <button class="glass-btn" onclick="refreshAllData()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Refresh</span>
+                </button>
+                <a href="/Account/Logout" class="glass-btn glass-btn-danger">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Top Key Performance Metrics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card card-purple">
+                <div class="stat-info">
+                    <div class="stat-label">Total Sessions</div>
+                    <div class="stat-value" id="statTotalSessions">0</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-chat-dots-fill"></i></div>
+            </div>
+
+            <div class="stat-card card-emerald">
+                <div class="stat-info">
+                    <div class="stat-label">Active Live Chats</div>
+                    <div class="stat-value" id="statLiveSessions">0</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+            </div>
+
+            <div class="stat-card card-amber">
+                <div class="stat-info">
+                    <div class="stat-label">Waiting in Queue</div>
+                    <div class="stat-value" id="statWaitingSessions">0</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-bell-fill"></i></div>
+            </div>
+
+            <div class="stat-card card-cyan">
+                <div class="stat-info">
+                    <div class="stat-label">Closed / Completed</div>
+                    <div class="stat-value" id="statClosedSessions">0</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-check2-all"></i></div>
+            </div>
+
+            <div class="stat-card card-indigo">
+                <div class="stat-info">
+                    <div class="stat-label">Online Agents</div>
+                    <div class="stat-value" id="statOnlineAgents">0 / 0</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            </div>
+
+            <div class="stat-card card-rose">
+                <div class="stat-info">
+                    <div class="stat-label">Total Messages</div>
+                    <div class="stat-value" id="statTotalMessages">0</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-chat-left-quote-fill"></i></div>
+            </div>
+
+            <div class="stat-card card-blue">
+                <div class="stat-info">
+                    <div class="stat-label">HelpDesk Tickets</div>
+                    <div class="stat-value" id="statTotalTickets">0</div>
+                </div>
+                <div class="stat-icon"><i class="bi bi-ticket-detailed-fill"></i></div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="admin-nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('history', this)">
+                <i class="bi bi-clock-history"></i>
+                <span>All Chat History & Transcripts</span>
+                <span class="tab-badge" id="historyTabBadge">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('agents', this)">
+                <i class="bi bi-person-gear"></i>
+                <span>Support Agents & Roles</span>
+                <span class="tab-badge" id="agentsTabBadge">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('liveMonitor', this)">
+                <i class="bi bi-activity"></i>
+                <span>Live Active Monitor</span>
+                <span class="tab-badge" id="liveMonitorTabBadge">0</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: ALL CHAT HISTORY & TRANSCRIPTS -->
+        <div class="tab-content-panel active" id="panel-history">
+            
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <input type="text" id="historySearch" class="glass-input" placeholder="🔍 Search student, roll no, contact, agent..." style="width: 100%; min-width: 180px;" oninput="debounceFetchHistory()" />
+                    
+                    <select id="historyStatusFilter" class="glass-select" onchange="fetchHistory()">
+                        <option value="">All Statuses</option>
+                        <option value="Live">Live (Ongoing)</option>
+                        <option value="WaitingAgent">Waiting for Agent</option>
+                        <option value="Closed">Closed / Completed</option>
+                        <option value="Bot">Bot Self-Service</option>
+                    </select>
+
+                    <select id="historyAgentFilter" class="glass-select" onchange="fetchHistory()">
+                        <option value="">All Assigned Agents</option>
+                    </select>
+
+                    <select id="historyDateFilter" class="glass-select" onchange="fetchHistory()">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="7days">Last 7 Days</option>
+                        <option value="30days">Last 30 Days</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <button class="glass-btn" onclick="exportHistoryCsv()">
+                        <i class="bi bi-file-earmark-spreadsheet-fill" style="color: #10b981;"></i>
+                        <span>Export CSV</span>
+                    </button>
+                    <button class="glass-btn" onclick="fetchHistory()">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>Reload</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Student / Visitor</th>
+                            <th>Contact / Roll No</th>
+                            <th>Status</th>
+                            <th>Assigned Agent</th>
+                            <th>Started At</th>
+                            <th>Duration</th>
+                            <th>Messages</th>
+                            <th>Last Message Preview</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- History rows injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: AGENT MANAGEMENT & ROLES -->
+        <div class="tab-content-panel" id="panel-agents">
+            
+            <div class="filter-bar">
+                <div style="font-weight: 700; font-size: 1rem; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-people-fill" style="color: #8b5cf6;"></i>
+                    <span>Manage Support Agents & Access Roles</span>
+                </div>
+
+                <div>
+                    <button class="glass-btn glass-btn-primary" onclick="openCreateAgentModal()">
+                        <i class="bi bi-person-plus-fill"></i>
+                        <span>Add New Agent</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Agent Name</th>
+                            <th>Email Address</th>
+                            <th>System Role</th>
+                            <th>Online Status</th>
+                            <th>Account Status</th>
+                            <th>Chats Handled</th>
+                            <th>Active Now</th>
+                            <th>Registered On</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agentsTableBody">
+                        <!-- Agent rows dynamically injected -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- TAB 3: LIVE ACTIVE MONITOR -->
+        <div class="tab-content-panel" id="panel-liveMonitor">
+            
+            <div class="filter-bar">
+                <div style="font-weight: 700; font-size: 1rem; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                    <span class="dot-indicator dot-online"></span>
+                    <span>Real-time Live Chats & Pending Queue Monitor</span>
+                </div>
+
+                <button class="glass-btn" onclick="fetchLiveMonitor()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Refresh Monitor</span>
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Contact & Roll No</th>
+                            <th>Current Status</th>
+                            <th>Assigned Agent</th>
+                            <th>Started Time</th>
+                            <th>Messages</th>
+                            <th>Latest Message</th>
+                            <th style="text-align: right;">Admin Control</th>
+                        </tr>
+                    </thead>
+                    <tbody id="liveMonitorTableBody">
+                        <!-- Live active rows dynamically injected -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL 1: VIEW FULL CHAT TRANSCRIPT -->
+    <div class="modal-overlay" id="transcriptModalOverlay" style="display: none;">
+        <div class="glass-modal modal-transcript-size">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 20px;">
+                        <i class="bi bi-chat-text-fill"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700;" id="transcriptTitle">Session Chat Transcript</h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;" id="transcriptSubtitle">Full chronological conversation log</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeTranscriptModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            
+            <!-- Session Meta Snapshot -->
+            <div style="background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 24px; display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.8rem;">
+                <div><span style="color: #94a3b8;">Student:</span> <strong id="tMetaStudent" style="color: #f8fafc;">-</strong></div>
+                <div><span style="color: #94a3b8;">Roll No:</span> <strong id="tMetaRoll" style="color: #67e8f9;">-</strong></div>
+                <div><span style="color: #94a3b8;">Contact:</span> <strong id="tMetaContact" style="color: #f8fafc;">-</strong></div>
+                <div><span style="color: #94a3b8;">Assigned Agent:</span> <strong id="tMetaAgent" style="color: #6ee7b7;">-</strong></div>
+                <div><span style="color: #94a3b8;">Status:</span> <span id="tMetaStatus" class="status-badge badge-closed">-</span></div>
+            </div>
+
+            <div class="modal-body" style="background: rgba(2, 6, 23, 0.5); min-height: 380px;">
+                <div class="transcript-stream" id="transcriptStreamContainer">
+                    <!-- Message items dynamically populated -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="printTranscript()"><i class="bi bi-printer-fill"></i> Print / Save</button>
+                <button class="glass-btn glass-btn-primary" onclick="closeTranscriptModal()">Close Transcript</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ADMIN TRANSFER CHAT -->
+    <div class="modal-overlay" id="adminTransferModalOverlay" style="display: none;">
+        <div class="glass-modal">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.4); display: flex; align-items: center; justify-content: center; color: #06b6d4; font-size: 18px;">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Re-assign / Transfer Session</h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">Transfer student chat to any active support agent</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeAdminTransferModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px 16px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Session Details</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #f8fafc; margin-top: 2px;" id="adminTransferStudentName">Student</div>
+                    <div style="font-size: 0.8rem; color: #06b6d4; margin-top: 2px;" id="adminTransferStudentMeta">Status</div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Target Agent <span style="color:#ef4444;">*</span></label>
+                    <select id="adminTransferAgentSelect" class="glass-select" style="width: 100%;">
+                        <option value="">-- Select Agent --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Admin Note / Reason (Optional)</label>
+                    <input type="text" id="adminTransferReason" class="glass-input" placeholder="e.g. Reassigned by Admin for priority handling" style="width: 100%;" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeAdminTransferModal()">Cancel</button>
+                <button class="glass-btn glass-btn-primary" id="btnAdminConfirmTransfer" onclick="submitAdminTransfer()">
+                    <i class="bi bi-check2-circle"></i> Transfer Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ADD AGENT -->
+    <div class="modal-overlay" id="createAgentModalOverlay" style="display: none;">
+        <div class="glass-modal">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); display: flex; align-items: center; justify-content: center; color: #818cf8; font-size: 18px;">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Add Support Agent</h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">Create a new staff login account</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeCreateAgentModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Full Name <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="createAgentName" class="glass-input" placeholder="e.g. Vikas Sharma" style="width: 100%;" />
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Email Address (Login ID) <span style="color:#ef4444;">*</span></label>
+                    <input type="email" id="createAgentEmail" class="glass-input" placeholder="e.g. vikas@mvvu.ac.in" style="width: 100%;" />
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Password <span style="color:#ef4444;">*</span></label>
+                    <input type="password" id="createAgentPassword" class="glass-input" placeholder="Set temporary or strong password" style="width: 100%;" />
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Assigned Role <span style="color:#ef4444;">*</span></label>
+                    <select id="createAgentRole" class="glass-select" style="width: 100%;">
+                        <option value="SupportAgent">Support Agent</option>
+                        <option value="Senior Support Agent">Senior Support Agent</option>
+                        <option value="Admin">Administrator (Full Access)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeCreateAgentModal()">Cancel</button>
+                <button class="glass-btn glass-btn-primary" onclick="submitCreateAgent()">
+                    <i class="bi bi-person-check-fill"></i> Create Agent
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: EDIT AGENT -->
+    <div class="modal-overlay" id="editAgentModalOverlay" style="display: none;">
+        <div class="glass-modal">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; color: #fbbf24; font-size: 18px;">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Edit Agent Details</h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">Update name, role or password</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeEditAgentModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editAgentId" />
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Full Name <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="editAgentName" class="glass-input" style="width: 100%;" />
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Email Address <span style="color:#ef4444;">*</span></label>
+                    <input type="email" id="editAgentEmail" class="glass-input" style="width: 100%;" />
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">New Password (leave empty to keep unchanged)</label>
+                    <input type="password" id="editAgentPassword" class="glass-input" placeholder="Enter new password if resetting" style="width: 100%;" />
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Role</label>
+                    <select id="editAgentRole" class="glass-select" style="width: 100%;">
+                        <option value="SupportAgent">Support Agent</option>
+                        <option value="Senior Support Agent">Senior Support Agent</option>
+                        <option value="Admin">Administrator (Full Access)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeEditAgentModal()">Cancel</button>
+                <button class="glass-btn glass-btn-primary" onclick="submitEditAgent()">
+                    <i class="bi bi-check2-circle"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: RESET AGENT PASSWORD -->
+    <div class="modal-overlay" id="resetPasswordModalOverlay" style="display: none;">
+        <div class="glass-modal">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; color: #fbbf24; font-size: 18px;">
+                        <i class="bi bi-key-fill"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Reset Agent Password</h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">Set a new login password for this agent</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeResetPasswordModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="resetAgentId" />
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px 16px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Agent Account</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #f8fafc; margin-top: 2px;" id="resetAgentName">Agent</div>
+                    <div style="font-size: 0.8rem; color: #06b6d4; margin-top: 2px;" id="resetAgentEmail">Email</div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">New Password <span style="color:#ef4444;">*</span></label>
+                    <input type="password" id="resetNewPasswordInput" class="glass-input" placeholder="Enter new password" style="width: 100%;" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeResetPasswordModal()">Cancel</button>
+                <button class="glass-btn glass-btn-primary" onclick="submitResetPassword()">
+                    <i class="bi bi-check-lg"></i> Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const currentAdminAgentId = parseInt('@ViewBag.AgentId' || '0');
+        let allAgentsList = [];
+        let allHistoryList = [];
+        let debounceTimer = null;
+        let transferTargetSessionId = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            refreshAllData();
+            // Polling stats & live monitor every 4 seconds
+            setInterval(fetchStats, 4000);
+            setInterval(fetchLiveMonitorSilently, 4000);
+        });
+
+        async function refreshAllData() {
+            await fetchStats();
+            await fetchAgents();
+            await fetchHistory();
+            await fetchLiveMonitor();
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content-panel').forEach(p => p.classList.remove('active'));
+
+            btn.classList.add('active');
+            const panel = document.getElementById(`panel-${tabId}`);
+            if (panel) panel.classList.add('active');
+
+            if (tabId === 'history') fetchHistory();
+            else if (tabId === 'agents') fetchAgents();
+            else if (tabId === 'liveMonitor') fetchLiveMonitor();
+        }
+
+        // ==========================================
+        // 1. STATS
+        // ==========================================
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const s = data.data;
+                    document.getElementById('statTotalSessions').innerText = s.TotalSessions;
+                    document.getElementById('statLiveSessions').innerText = s.LiveSessions;
+                    document.getElementById('statWaitingSessions').innerText = s.WaitingSessions;
+                    document.getElementById('statClosedSessions').innerText = s.ClosedSessions;
+                    document.getElementById('statOnlineAgents').innerText = `${s.OnlineAgents} / ${s.TotalAgents}`;
+                    document.getElementById('statTotalMessages').innerText = s.TotalMessages;
+                    document.getElementById('statTotalTickets').innerText = s.TotalTickets;
+
+                    document.getElementById('liveMonitorTabBadge').innerText = s.LiveSessions + s.WaitingSessions;
+                }
+            } catch (err) {
+                console.error('Error fetching stats:', err);
+            }
+        }
+
+        // ==========================================
+        // 2. CHAT HISTORY & TRANSCRIPT
+        // ==========================================
+        function debounceFetchHistory() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchHistory, 300);
+        }
+
+        async function fetchHistory() {
+            const search = document.getElementById('historySearch').value.trim();
+            const status = document.getElementById('historyStatusFilter').value;
+            const agentId = document.getElementById('historyAgentFilter').value;
+            const dateRange = document.getElementById('historyDateFilter').value;
+
+            let startDate = '';
+            const now = new Date();
+            if (dateRange === 'today') {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                startDate = d.toISOString();
+            } else if (dateRange === '7days') {
+                const d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                startDate = d.toISOString();
+            } else if (dateRange === '30days') {
+                const d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                startDate = d.toISOString();
+            }
+
+            let url = `/api/admin/history?searchTerm=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`;
+            if (agentId) url += `&agentId=${encodeURIComponent(agentId)}`;
+            if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.success && data.data) {
+                    allHistoryList = data.data;
+                    renderHistoryTable(allHistoryList);
+                    document.getElementById('historyTabBadge').innerText = allHistoryList.length;
+                }
+            } catch (err) {
+                console.error('Error fetching history:', err);
+            }
+        }
+
+        function renderHistoryTable(list) {
+            const tbody = document.getElementById('historyTableBody');
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            <div class="table-empty-state">
+                                <i class="bi bi-inbox table-empty-icon"></i>
+                                <div>No chat sessions found matching your filters.</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = list.map(item => {
+                const statusBadge = getStatusBadge(item.Status);
+                const createdDate = new Date(item.CreatedDate).toLocaleString();
+                const duration = item.DurationMinutes != null ? `${item.DurationMinutes}m` : '-';
+                const agentName = item.AssignedAgentName ? `<i class="bi bi-headset"></i> ${escapeHtml(item.AssignedAgentName)}` : '<span style="color:#64748b;">Unassigned</span>';
+                const lastMsg = item.LastMessage ? escapeHtml(cleanSystemText(item.LastMessage)) : '<span style="color:#64748b; font-style:italic;">No messages</span>';
+
+                let transferBtn = '';
+                if (item.Status === 'Live' || item.Status === 'WaitingAgent') {
+                    transferBtn = `<button class="btn-action-sm btn-transfer-sm" onclick="openAdminTransferModal('${item.SessionId}', '${escapeHtml(item.UserName)}', '${item.Status}')" title="Re-assign or transfer this live session"><i class="bi bi-arrow-left-right"></i> Transfer</button>`;
+                }
+
+                return `
+                    <tr>
+                        <td>
+                            <strong style="color: #f8fafc; font-size: 0.9rem;">${escapeHtml(item.UserName || 'Student / Visitor')}</strong>
+                            ${item.FatherName ? `<div style="font-size: 0.74rem; color: #94a3b8;">Father: ${escapeHtml(item.FatherName)}</div>` : ''}
+                        </td>
+                        <td>
+                            <div>${escapeHtml(item.UserContact || '-')}</div>
+                            ${item.RollNo ? `<div style="font-size: 0.74rem; color: #67e8f9; font-weight: 600;">Roll: ${escapeHtml(item.RollNo)}</div>` : ''}
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td>${agentName}</td>
+                        <td style="font-size: 0.78rem; color: #cbd5e1;">${createdDate}</td>
+                        <td style="font-weight: 600; color: #a5b4fc;">${duration}</td>
+                        <td><span style="background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-weight: 700;">${item.TotalMessages}</span></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8rem; color: #cbd5e1;" title="${lastMsg}">
+                            ${lastMsg}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            ${transferBtn}
+                            <button class="btn-action-sm btn-view-transcript" onclick="viewTranscript('${item.SessionId}')">
+                                <i class="bi bi-eye-fill"></i> View Transcript
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function viewTranscript(sessionId) {
+            try {
+                const res = await fetch(`/api/admin/session-transcript?sessionId=${sessionId}`);
+                const data = await res.json();
+                if (data.success) {
+                    const s = data.session || {};
+                    const messages = data.messages || [];
+
+                    document.getElementById('transcriptTitle').innerText = `Chat Transcript: ${s.UserName || 'Student'}`;
+                    document.getElementById('tMetaStudent').innerText = s.UserName || 'Student / Visitor';
+                    document.getElementById('tMetaRoll').innerText = s.RollNo || 'N/A';
+                    document.getElementById('tMetaContact').innerText = s.UserContact || 'N/A';
+                    document.getElementById('tMetaAgent').innerText = s.AssignedAgentName || 'Unassigned';
+                    
+                    const statusElem = document.getElementById('tMetaStatus');
+                    statusElem.outerHTML = `<span id="tMetaStatus">${getStatusBadge(s.Status)}</span>`;
+
+                    const stream = document.getElementById('transcriptStreamContainer');
+                    if (messages.length === 0) {
+                        stream.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">No messages found in this session.</div>';
+                    } else {
+                        stream.innerHTML = messages.map(m => {
+                            const time = new Date(m.SentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            
+                            let attachmentHtml = '';
+                            if (m.AttachmentUrl) {
+                                if (m.AttachmentType === 'image') {
+                                    attachmentHtml = `
+                                        <div style="margin-top: 8px;">
+                                            <a href="${m.AttachmentUrl}" target="_blank" title="Click to view full image">
+                                                <img src="${m.AttachmentUrl}" alt="${escapeHtml(m.AttachmentName || 'Photo')}" style="max-width: 220px; max-height: 180px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); object-fit: cover; display: block;" />
+                                            </a>
+                                            <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                                                <i class="bi bi-image"></i> ${escapeHtml(m.AttachmentName || 'Photo')}
+                                                <a href="${m.AttachmentUrl}" download style="color: #67e8f9; text-decoration: none; font-weight: 600;"><i class="bi bi-download"></i> Download</a>
+                                            </div>
+                                        </div>
+                                    `;
+                                } else {
+                                    attachmentHtml = `
+                                        <div style="margin-top: 8px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+                                            <i class="bi bi-file-earmark-text-fill" style="font-size: 20px; color: #67e8f9;"></i>
+                                            <div style="flex: 1; min-width: 0;">
+                                                <div style="font-weight: 600; font-size: 0.8rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(m.AttachmentName || 'Document')}</div>
+                                                <a href="${m.AttachmentUrl}" download target="_blank" style="font-size: 0.72rem; color: #6ee7b7; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                                    <i class="bi bi-download"></i> Download File
+                                                </a>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            }
+
+                            if (m.SenderType === 'User') {
+                                return `
+                                    <div class="transcript-msg msg-student">
+                                        <div style="font-size:0.72rem; color:#93c5fd; font-weight:600; margin-bottom:2px;"><i class="bi bi-person-fill"></i> ${escapeHtml(m.SenderName)} (Student)</div>
+                                        <div class="t-bubble t-bubble-student">${escapeHtml(m.MessageText)}${attachmentHtml}</div>
+                                        <div class="t-meta">${time}</div>
+                                    </div>
+                                `;
+                            } else if (m.SenderType === 'Agent') {
+                                return `
+                                    <div class="transcript-msg msg-agent">
+                                        <div style="font-size:0.72rem; color:#6ee7b7; font-weight:600; margin-bottom:2px; text-align:right;"><i class="bi bi-headset"></i> ${escapeHtml(m.SenderName)} (Agent)</div>
+                                        <div class="t-bubble t-bubble-agent">${escapeHtml(m.MessageText)}${attachmentHtml}</div>
+                                        <div class="t-meta" style="text-align:right;">${time}</div>
+                                    </div>
+                                `;
+                            } else {
+                                let badge = '';
+                                if (m.MessageText && m.MessageText.includes('[Upload Requested]')) {
+                                    badge = `<span style="background: rgba(139, 92, 246, 0.25); border: 1px solid #8b5cf6; color: #c084fc; border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-paperclip"></i> Upload Requested</span>`;
+                                } else if (m.MessageText && m.MessageText.includes('[Agent Connected]')) {
+                                    badge = `<span style="background: rgba(16, 185, 129, 0.25); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-person-check-fill"></i> Connected</span>`;
+                                } else if (m.MessageText && m.MessageText.includes('[Chat Closed]')) {
+                                    badge = `<span style="background: rgba(239, 68, 68, 0.25); border: 1px solid #ef4444; color: #fca5a5; border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-lock-fill"></i> Closed</span>`;
+                                } else if (m.MessageText && (m.MessageText.includes('[Transferred]') || m.MessageText.includes('[Chat Transferred]'))) {
+                                    badge = `<span style="background: rgba(6, 182, 212, 0.25); border: 1px solid #06b6d4; color: #67e8f9; border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 600; margin-right: 6px;"><i class="bi bi-arrow-left-right"></i> Transferred</span>`;
+                                }
+                                return `
+                                    <div class="transcript-msg msg-system">
+                                        <div class="t-bubble t-bubble-system">
+                                            ${badge}${escapeHtml(cleanSystemText(m.MessageText))}
+                                            <span style="font-size:0.7rem; color:#94a3b8; margin-left:6px;">${time}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }).join('');
+                    }
+
+                    document.getElementById('transcriptModalOverlay').style.display = 'flex';
+                } else {
+                    alert('Could not fetch transcript for this session.');
+                }
+            } catch (err) {
+                console.error('Error fetching transcript:', err);
+                alert('Network error while fetching transcript.');
+            }
+        }
+
+        function closeTranscriptModal() {
+            document.getElementById('transcriptModalOverlay').style.display = 'none';
+        }
+
+        function printTranscript() {
+            const printContent = document.getElementById('transcriptModalOverlay').innerHTML;
+            const originalContent = document.body.innerHTML;
+            window.print();
+        }
+
+        // ==========================================
+        // 3. AGENT MANAGEMENT
+        // ==========================================
+        async function fetchAgents() {
+            try {
+                const res = await fetch('/api/admin/agents');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    allAgentsList = data.data;
+                    renderAgentsTable(allAgentsList);
+                    populateAgentDropdowns(allAgentsList);
+                    document.getElementById('agentsTabBadge').innerText = allAgentsList.length;
+                }
+            } catch (err) {
+                console.error('Error fetching agents:', err);
+            }
+        }
+
+        function renderAgentsTable(agents) {
+            const tbody = document.getElementById('agentsTableBody');
+            if (!agents || agents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:#94a3b8;">No agents registered.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = agents.map(ag => {
+                const isCurrentAdmin = ag.AgentId === currentAdminAgentId;
+                const youBadge = isCurrentAdmin ? `<span style="background:rgba(236,72,153,0.25); border:1px solid rgba(236,72,153,0.4); color:#fbcfe8; font-size:0.68rem; padding:1px 6px; border-radius:4px; margin-left:6px; font-weight:700;">YOU</span>` : '';
+
+                let roleBadge = `<span class="status-badge badge-agent"><i class="bi bi-headset"></i> ${escapeHtml(ag.Role)}</span>`;
+                if (ag.Role === 'Admin') {
+                    roleBadge = `<span class="status-badge badge-admin"><i class="bi bi-shield-check"></i> Admin</span>`;
+                } else if (ag.Role.includes('Senior')) {
+                    roleBadge = `<span class="status-badge" style="background:rgba(139,92,246,0.25); color:#c084fc; border:1px solid rgba(139,92,246,0.4);"><i class="bi bi-award-fill"></i> Senior Agent</span>`;
+                }
+                
+                const onlineDot = ag.IsOnline 
+                    ? `<span class="dot-indicator dot-online"></span> <span style="color:#6ee7b7; font-weight:600;">Online</span>`
+                    : `<span class="dot-indicator dot-offline"></span> <span style="color:#94a3b8;">Offline</span>`;
+
+                const createdDate = new Date(ag.CreatedDate).toLocaleDateString();
+
+                const switchHtml = isCurrentAdmin 
+                    ? `<label class="switch" title="You cannot deactivate your own account"><input type="checkbox" checked disabled><span class="slider" style="opacity:0.4; cursor:not-allowed;"></span></label>`
+                    : `<label class="switch"><input type="checkbox" ${ag.IsActive ? 'checked' : ''} onchange="toggleAgentStatus(${ag.AgentId}, this.checked)"><span class="slider"></span></label>`;
+
+                const deleteBtn = isCurrentAdmin
+                    ? `<button class="btn-action-sm btn-delete-sm" disabled style="opacity:0.35; cursor:not-allowed;" title="You cannot delete yourself"><i class="bi bi-trash3-fill"></i></button>`
+                    : `<button class="btn-action-sm btn-delete-sm" onclick="deleteAgent(${ag.AgentId}, '${escapeHtml(ag.Name)}')" title="Delete or deactivate agent"><i class="bi bi-trash3-fill"></i> Delete</button>`;
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight:700; color:#f8fafc; font-size:0.92rem; display:flex; align-items:center;">
+                                ${escapeHtml(ag.Name)} ${youBadge}
+                            </div>
+                        </td>
+                        <td style="color:#cbd5e1;">${escapeHtml(ag.Email)}</td>
+                        <td>${roleBadge}</td>
+                        <td>${onlineDot}</td>
+                        <td>${switchHtml}</td>
+                        <td>
+                            <button class="btn-action-sm" style="background:rgba(59,130,246,0.18); border-color:rgba(59,130,246,0.35); color:#60a5fa;" onclick="filterHistoryByAgent(${ag.AgentId})" title="Click to view history of chats handled by ${escapeHtml(ag.Name)}">
+                                <i class="bi bi-chat-left-text"></i> ${ag.TotalChatsHandled} Chats
+                            </button>
+                        </td>
+                        <td><span style="background:rgba(16,185,129,0.15); color:#6ee7b7; font-weight:700; padding:2px 8px; border-radius:6px;">${ag.ActiveChats}</span></td>
+                        <td style="font-size:0.8rem; color:#94a3b8;">${createdDate}</td>
+                        <td style="text-align:right; white-space:nowrap;">
+                            <button class="btn-action-sm btn-edit-sm" onclick="openEditAgentModal(${ag.AgentId}, '${escapeHtml(ag.Name)}', '${escapeHtml(ag.Email)}', '${escapeHtml(ag.Role)}')" title="Edit Agent">
+                                <i class="bi bi-pencil-fill"></i> Edit
+                            </button>
+                            <button class="btn-action-sm btn-key-sm" onclick="openResetPasswordModal(${ag.AgentId}, '${escapeHtml(ag.Name)}', '${escapeHtml(ag.Email)}')" title="Reset Password">
+                                <i class="bi bi-key-fill"></i> Password
+                            </button>
+                            ${deleteBtn}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterHistoryByAgent(agentId) {
+            switchTab('history', document.querySelectorAll('.tab-btn')[0]);
+            document.getElementById('historyAgentFilter').value = agentId;
+            fetchHistory();
+        }
+
+        async function deleteAgent(agentId, name) {
+            if (!confirm(`Are you sure you want to remove agent "${name}"?\n\nIf they have handled previous student chats, their account will be deactivated and chat records preserved.`)) return;
+
+            try {
+                const res = await fetch('/api/admin/delete-agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message || 'Agent removed.');
+                    await fetchAgents();
+                    await fetchStats();
+                } else {
+                    alert(data.message || 'Could not delete agent.');
+                }
+            } catch (err) {
+                console.error('Delete agent error:', err);
+                alert('Network error while deleting agent.');
+            }
+        }
+
+        function openResetPasswordModal(agentId, name, email) {
+            document.getElementById('resetAgentId').value = agentId;
+            document.getElementById('resetAgentName').innerText = name;
+            document.getElementById('resetAgentEmail').innerText = email;
+            document.getElementById('resetNewPasswordInput').value = '';
+            document.getElementById('resetPasswordModalOverlay').style.display = 'flex';
+        }
+
+        function closeResetPasswordModal() {
+            document.getElementById('resetPasswordModalOverlay').style.display = 'none';
+        }
+
+        async function submitResetPassword() {
+            const agentId = parseInt(document.getElementById('resetAgentId').value);
+            const newPassword = document.getElementById('resetNewPasswordInput').value.trim();
+
+            if (!newPassword) {
+                alert('Please enter a new password.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/reset-agent-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, newPassword })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeResetPasswordModal();
+                    alert(data.message || 'Agent password updated successfully.');
+                } else {
+                    alert(data.message || 'Could not reset password.');
+                }
+            } catch (err) {
+                console.error('Reset password error:', err);
+                alert('Error updating password.');
+            }
+        }
+
+        function populateAgentDropdowns(agents) {
+            const historyFilter = document.getElementById('historyAgentFilter');
+            const adminTransferSelect = document.getElementById('adminTransferAgentSelect');
+
+            const currentHistoryVal = historyFilter.value;
+            historyFilter.innerHTML = '<option value="">All Assigned Agents</option>';
+            adminTransferSelect.innerHTML = '<option value="">-- Select Target Agent --</option>';
+
+            agents.forEach(ag => {
+                if (ag.IsActive) {
+                    const opt1 = document.createElement('option');
+                    opt1.value = ag.AgentId;
+                    opt1.textContent = `${ag.Name} (${ag.Role})`;
+                    historyFilter.appendChild(opt1);
+
+                    const opt2 = document.createElement('option');
+                    opt2.value = ag.AgentId;
+                    const dot = ag.IsOnline ? '🟢 Online' : '⚪ Offline';
+                    opt2.textContent = `${ag.Name} (${ag.Role}) - ${dot}`;
+                    adminTransferSelect.appendChild(opt2);
+                }
+            });
+
+            historyFilter.value = currentHistoryVal;
+        }
+
+        async function toggleAgentStatus(agentId, isActive) {
+            try {
+                const res = await fetch('/api/admin/toggle-agent-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, isActive })
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    alert('Could not update agent status.');
+                    await fetchAgents();
+                }
+            } catch (err) {
+                console.error('Toggle status error:', err);
+                await fetchAgents();
+            }
+        }
+
+        // Add Agent
+        function openCreateAgentModal() {
+            document.getElementById('createAgentName').value = '';
+            document.getElementById('createAgentEmail').value = '';
+            document.getElementById('createAgentPassword').value = '';
+            document.getElementById('createAgentRole').value = 'SupportAgent';
+            document.getElementById('createAgentModalOverlay').style.display = 'flex';
+        }
+        function closeCreateAgentModal() {
+            document.getElementById('createAgentModalOverlay').style.display = 'none';
+        }
+        async function submitCreateAgent() {
+            const name = document.getElementById('createAgentName').value.trim();
+            const email = document.getElementById('createAgentEmail').value.trim();
+            const password = document.getElementById('createAgentPassword').value.trim();
+            const role = document.getElementById('createAgentRole').value;
+
+            if (!name || !email || !password) {
+                alert('Please enter Name, Email, and Password.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/create-agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Name: name, Email: email, Password: password, Role: role })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeCreateAgentModal();
+                    alert('Agent created successfully.');
+                    await fetchAgents();
+                    await fetchStats();
+                } else {
+                    alert(data.message || 'Error creating agent.');
+                }
+            } catch (err) {
+                console.error('Error creating agent:', err);
+                alert('Failed to connect to server.');
+            }
+        }
+
+        // Edit Agent
+        function openEditAgentModal(agentId, name, email, role) {
+            document.getElementById('editAgentId').value = agentId;
+            document.getElementById('editAgentName').value = name;
+            document.getElementById('editAgentEmail').value = email;
+            document.getElementById('editAgentPassword').value = '';
+            document.getElementById('editAgentRole').value = role || 'SupportAgent';
+            document.getElementById('editAgentModalOverlay').style.display = 'flex';
+        }
+        function closeEditAgentModal() {
+            document.getElementById('editAgentModalOverlay').style.display = 'none';
+        }
+        async function submitEditAgent() {
+            const agentId = parseInt(document.getElementById('editAgentId').value);
+            const name = document.getElementById('editAgentName').value.trim();
+            const email = document.getElementById('editAgentEmail').value.trim();
+            const password = document.getElementById('editAgentPassword').value.trim();
+            const role = document.getElementById('editAgentRole').value;
+
+            if (!name || !email) {
+                alert('Name and Email are required.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/update-agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        AgentId: agentId,
+                        Name: name,
+                        Email: email,
+                        Password: password || null,
+                        Role: role,
+                        IsActive: true
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeEditAgentModal();
+                    alert('Agent updated successfully.');
+                    await fetchAgents();
+                } else {
+                    alert(data.message || 'Error updating agent.');
+                }
+            } catch (err) {
+                console.error('Error updating agent:', err);
+                alert('Failed to update agent.');
+            }
+        }
+
+        // ==========================================
+        // 4. LIVE ACTIVE MONITOR
+        // ==========================================
+        async function fetchLiveMonitor() {
+            await fetchLiveMonitorSilently();
+        }
+
+        async function fetchLiveMonitorSilently() {
+            try {
+                const res = await fetch('/api/admin/history?status=Live');
+                const dataLive = await res.json();
+
+                const resWait = await fetch('/api/admin/history?status=WaitingAgent');
+                const dataWait = await resWait.json();
+
+                const liveList = (dataLive.success ? dataLive.data : []).concat(dataWait.success ? dataWait.data : []);
+                renderLiveMonitorTable(liveList);
+                document.getElementById('liveMonitorTabBadge').innerText = liveList.length;
+            } catch (err) {
+                console.error('Error fetching live monitor:', err);
+            }
+        }
+
+        function renderLiveMonitorTable(list) {
+            const tbody = document.getElementById('liveMonitorTableBody');
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="table-empty-state">
+                                <i class="bi bi-shield-check table-empty-icon" style="color:#10b981;"></i>
+                                <div style="color:#f8fafc; font-weight:600;">No live ongoing chats or waiting requests.</div>
+                                <div style="font-size:0.8rem;">All student sessions are currently resolved.</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = list.map(item => {
+                const statusBadge = getStatusBadge(item.Status);
+                const createdTime = new Date(item.CreatedDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const lastMsg = item.LastMessage ? escapeHtml(cleanSystemText(item.LastMessage)) : '<span style="color:#64748b; font-style:italic;">No messages</span>';
+
+                return `
+                    <tr>
+                        <td>
+                            <strong style="color: #f8fafc; font-size: 0.9rem;">${escapeHtml(item.UserName || 'Student')}</strong>
+                            ${item.FatherName ? `<div style="font-size: 0.74rem; color: #94a3b8;">Father: ${escapeHtml(item.FatherName)}</div>` : ''}
+                        </td>
+                        <td>
+                            <div>${escapeHtml(item.UserContact || '-')}</div>
+                            ${item.RollNo ? `<div style="font-size: 0.74rem; color: #67e8f9; font-weight: 600;">Roll: ${escapeHtml(item.RollNo)}</div>` : ''}
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            ${item.AssignedAgentName ? `<i class="bi bi-headset"></i> <strong>${escapeHtml(item.AssignedAgentName)}</strong>` : '<span style="color:#f59e0b; font-weight:600;"><i class="bi bi-hourglass-split"></i> Awaiting Agent</span>'}
+                        </td>
+                        <td style="font-size: 0.78rem; color: #cbd5e1;">${createdTime}</td>
+                        <td><span style="background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-weight: 700;">${item.TotalMessages}</span></td>
+                        <td style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8rem; color: #cbd5e1;">
+                            ${lastMsg}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <button class="btn-action-sm btn-transfer-sm" onclick="openAdminTransferModal('${item.SessionId}', '${escapeHtml(item.UserName)}', '${item.Status}')">
+                                <i class="bi bi-arrow-left-right"></i> Transfer
+                            </button>
+                            <button class="btn-action-sm btn-view-transcript" onclick="viewTranscript('${item.SessionId}')">
+                                <i class="bi bi-eye-fill"></i> View
+                            </button>
+                            <button class="btn-action-sm" style="background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.4); color:#fca5a5;" onclick="adminCloseChat('${item.SessionId}')">
+                                <i class="bi bi-lock-fill"></i> End
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // 5. ADMIN CHAT TRANSFER
+        // ==========================================
+        function openAdminTransferModal(sessionId, studentName, status) {
+            transferTargetSessionId = sessionId;
+            document.getElementById('adminTransferStudentName').innerText = studentName || 'Student';
+            document.getElementById('adminTransferStudentMeta').innerText = `Current Status: ${status}`;
+            document.getElementById('adminTransferReason').value = '';
+            document.getElementById('adminTransferModalOverlay').style.display = 'flex';
+        }
+
+        function closeAdminTransferModal() {
+            document.getElementById('adminTransferModalOverlay').style.display = 'none';
+            transferTargetSessionId = null;
+        }
+
+        async function submitAdminTransfer() {
+            const targetAgentId = document.getElementById('adminTransferAgentSelect').value;
+            if (!targetAgentId) {
+                alert('Please select a target agent.');
+                return;
+            }
+
+            const reason = document.getElementById('adminTransferReason').value.trim();
+            const btn = document.getElementById('btnAdminConfirmTransfer');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Transferring...';
+
+            try {
+                const res = await fetch('/api/admin/transfer-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        SessionId: transferTargetSessionId,
+                        ToAgentId: parseInt(targetAgentId),
+                        Reason: reason
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeAdminTransferModal();
+                    alert(data.message || 'Chat session transferred successfully.');
+                    await fetchHistory();
+                    await fetchLiveMonitor();
+                    await fetchStats();
+                } else {
+                    alert(data.message || 'Transfer failed.');
+                }
+            } catch (err) {
+                console.error('Transfer error:', err);
+                alert('Network error while transferring session.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check2-circle"></i> Transfer Session';
+            }
+        }
+
+        async function adminCloseChat(sessionId) {
+            if (!confirm('Are you sure you want to forcibly close this session as Administrator?')) return;
+
+            try {
+                const res = await fetch('/api/admin/close-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ SessionId: sessionId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Session closed successfully.');
+                    await fetchHistory();
+                    await fetchLiveMonitor();
+                    await fetchStats();
+                } else {
+                    alert('Could not close session.');
+                }
+            } catch (err) {
+                console.error('Error closing session:', err);
+            }
+        }
+
+        // ==========================================
+        // 6. CSV EXPORT & UTILITIES
+        // ==========================================
+        function exportHistoryCsv() {
+            if (!allHistoryList || allHistoryList.length === 0) {
+                alert('No chat history to export.');
+                return;
+            }
+
+            const headers = ['SessionId', 'StudentName', 'RollNo', 'Contact', 'Status', 'AssignedAgent', 'StartedDate', 'DurationMinutes', 'TotalMessages', 'LastMessage'];
+            const rows = allHistoryList.map(h => [
+                h.SessionId,
+                `"${(h.UserName || '').replace(/"/g, '""')}"`,
+                `"${(h.RollNo || '').replace(/"/g, '""')}"`,
+                `"${(h.UserContact || '').replace(/"/g, '""')}"`,
+                h.Status,
+                `"${(h.AssignedAgentName || '').replace(/"/g, '""')}"`,
+                h.CreatedDate,
+                h.DurationMinutes || 0,
+                h.TotalMessages,
+                `"${(cleanSystemText(h.LastMessage) || '').replace(/"/g, '""')}"`
+            ]);
+
+            const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `HelpDesk_Chat_History_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'Live') {
+                return `<span class="status-badge badge-live"><span class="dot-indicator dot-online"></span> Live</span>`;
+            } else if (status === 'WaitingAgent') {
+                return `<span class="status-badge badge-waiting"><i class="bi bi-bell-fill"></i> Waiting</span>`;
+            } else if (status === 'Closed') {
+                return `<span class="status-badge badge-closed"><i class="bi bi-check2-circle"></i> Closed</span>`;
+            } else {
+                return `<span class="status-badge badge-bot"><i class="bi bi-robot"></i> Bot</span>`;
+            }
+        }
+
+        function cleanSystemText(text) {
+            if (!text) return '';
+            return text
+                .replace(/\[Agent Connected\]\s*/gi, '')
+                .replace(/\[Chat Closed\]\s*/gi, '')
+                .replace(/\[Transferred\]\s*/gi, '')
+                .replace(/\[Chat Transferred\]\s*/gi, '')
+                .replace(/\[Upload Requested\]\s*/gi, '')
+                .replace(/ðŸ”„\s*/gi, '')
+                .replace(/[\u00F0\u0178\u201D\u201E]/g, '')
+                .replace(/ð[^\s]*/g, '')
+                .trim();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
